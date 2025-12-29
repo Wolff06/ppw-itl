@@ -1,76 +1,43 @@
-.main-container {
+.mainContainer{
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    background-color: var(--color-primary);
 }
 
-/* BARRA DE NAVEGACION */
-
-.main-container .main-navbar {
+.mainContainer .navbar{
     display: flex;
-    flex-direction: column;
-    height: 64px;
+    flex-direction: row;
+    height: 48px;
     background-color: var(--color-primary);
-    border-bottom: 10px solid var(--color-primary-light);
+    border-bottom: 5px solid var(--color-primary-light);
     box-shadow: 0 0 10px 10px rgba(0,0,0,0.2);
     position: sticky;
     top: 0;
     z-index: 10;
 }
 
-.navbar-container{
+.navbar .container {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     height: 100%;
     padding: 4px;
     gap: 4px;
+    flex-grow: 1;
     box-sizing: border-box;
 }
 
-.navbar-container .navbar-item{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-}
-
-.navbar-item button{
-    height: auto;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 1rem;
-    cursor: pointer;
-    color: whitesmoke;
-    background-color: transparent;
-    border: none;
-    transition: all 0.2s ease-in-out;
-    &:hover{
-        color: gray;
-    }
-    &:active{
-        color: white;
-    }
-}
-
-.navbar-item .login{
-    border-radius: 0;
-    border-right: 2px solid white;
-    border-left: 2px solid white;
-    border-bottom: none;
-    text-align: center;
-    padding: 10px;
-}
-
-.burger-btn {
+.navbar .burgerButton{
     display: none;
 }
 
-.navbar-burger{
+.navbar .burgerLabel{
     display: none;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 1.5rem;
     padding: 5px;
     cursor: pointer;
     color: white;
@@ -80,92 +47,162 @@
     }
 }
 
-@media screen and (max-width: 768px) {
+.navbar .logo{
+    display: flex;
+}
 
-    .navbar-container {
-        display: none;
-        gap: 10px;
+.navbar .logo img{
+    width: 128px;
+    height: 100%;
+    object-fit: fill;
+}
+
+.navbar .vSpacer{
+    width: 2px;
+    height: 100%;
+    background-color: white;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.navbar .item{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.navbar .item button{
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    &:hover{
+        color: var(--color-primary-light);
+        border-color: var(--color-primary-light);
     }
-
-    .navbar-item button {
-        height: 100%;
-        width: 100%;
-        text-align: left;
-        border-left: 4px solid var(--color-primary-light);
-        border-bottom: 2px solid var(--color-primary-light);
+    &:active{
+        color: var(--color-primary);
+        border-color: gray;
     }
+}
 
-    .navbar-burger {
-        display: flex;
-    }
+.navbar .login{
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    justify-content: flex-end;
+}
 
-    .main-container .main-navbar {
+.navbar .login button{
+}
+
+@media screen and (max-width: 768px){
+    .mainContainer .navbar{
+        flex-direction: column;
         height: auto;
     }
 
-    .burger-btn:checked ~ .navbar-container{
+    .navbar .container {
+        display: none;
+    }
+
+    .navbar .logo{
+        display: none;
+    }
+
+    .navbar .burgerLabel{
+        display: flex;
+    }
+
+    .navbar .login .vSpacer{
+        display: none;
+    }
+
+    .navbar .burgerButton:checked ~ .container{
         display: flex;
         flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
+        gap: 10px;
+    }
+
+    .navbar .burgerButton:checked ~ .burgerLabel{
+        border-bottom: 2px solid white;
+    }
+
+    .navbar .item button{
+        border-left: 2px solid white;
+        min-height: 32px;
+        &:hover{
+            border-left-width: 4px;
+        }
     }
 }
 
-/* CONTENIDO */
-
-.main-container .main-content{
+.content {
     display: flex;
     flex-direction: column;
 }
 
-.main-content .main-header{
+.content .header img{
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
 }
 
-.main-content .main-body{
-    display: flex;
-    flex-direction: column;
+.content .body{
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    top: -10px;
 }
 
-/* cuerpo */
-
-.main-body .body-box{
+.content .body .box{
     display: flex;
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
-    padding: 5px;
+    padding: 10px;
     gap: 10px;
     background-color: #EDEDED;
 }
 
-.body-box .box-item{
+.box .item{
     display: flex;
     flex-direction: column;
     padding: 5px;
     width: 25%;
-
 }
 
-.box-item h3{
+.item h3{
     margin: 0;
     text-align: center;
     text-transform: uppercase;
     color: var(--color-primary-text-accent);
 }
 
-.box-item h4{
+.item h4{
     margin: 0;
 }
 
-/* footer */
-
-.main-body .main-footer {
+.content .body .footer{
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
 
-.main-footer p{
+.footer p{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    color: white;
+}
+
+.footer a{
+    color: white;
 }
