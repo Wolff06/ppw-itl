@@ -3,9 +3,11 @@ import styles from "./InicioSesion.module.css";
 
 export default function InicioSesion() {
     return (
-        <div className={styles["main-content"]}>
-            <div className={styles["login-box"]}>
+        <div className={styles.content}>
+            <div className={styles.loginBox}>
                 <div className={styles.header}>
+                    <div className={styles.logo}><img src="" alt="ITL Logo"/></div>
+                    <div className={styles.vSpacer}></div>
                     <h3>INSTITUTO TECNOLÓGICO DE LEÓN</h3>
                 </div>
                 <div className={styles.body}>

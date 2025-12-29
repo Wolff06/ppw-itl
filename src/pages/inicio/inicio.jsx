@@ -10,7 +10,7 @@ export default function Inicio() {
                 <input type="checkbox" id="burger-btn" className={styles.burgerButton}/>
                 <label htmlFor="burger-btn" className={styles.burgerLabel}>☰ MENÚ</label>
                 <div className={styles.container}>
-                    <div className={styles.logo}><img src="https://lipsum.app/random/128x48" alt="ITL Logo"/></div>
+                    <div className={styles.logo}><img src="" alt="ITL Logo"/></div>
                     <div className={styles.vSpacer}></div>
                     <div className={styles.item}><button>Aula Virtual</button></div>
                     <div className={styles.item}><button>Centro de Información</button></div>
@@ -26,7 +26,7 @@ export default function Inicio() {
             </div>
             <div className={styles.content}>
                 <div className={styles.header}>
-                    <img src="https://lipsum.app/random/1024x128" alt=""/>
+                    <img src="" alt=""/>
                 </div>
                 <div className={styles.body}>
                     <div className={styles.box}>
