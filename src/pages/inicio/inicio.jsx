@@ -1,5 +1,6 @@
 import styles from "./Inicio.module.css";
 import {useNavigate, Link} from 'react-router-dom';
+import logo from '/logos/LogoTecNM.png?url';
 
 export default function Inicio() {
     const navigate= useNavigate();
@@ -10,7 +11,7 @@ export default function Inicio() {
                 <input type="checkbox" id="burger-btn" className={styles.burgerButton}/>
                 <label htmlFor="burger-btn" className={styles.burgerLabel}>☰ MENÚ</label>
                 <div className={styles.container}>
-                    <div className={styles.logo}><img src="" alt="ITL Logo"/></div>
+                    <div className={styles.logo}><img src={logo} alt="ITL Logo"/></div>
                     <div className={styles.vSpacer}></div>
                     <div className={styles.item}><button>Aula Virtual</button></div>
                     <div className={styles.item}><button>Centro de Información</button></div>

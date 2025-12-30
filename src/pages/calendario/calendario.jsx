@@ -1,16 +1,28 @@
 
-import styles from './calendario.module.css';
-import {useNavigate} from "react-router-dom";
+
+import Seccion from "../templates/seccion/seccion.jsx";
+import download from "/icons/download.svg?url";
+import styles from "./calendario.module.css";
 
 export default function Calendario() {
-    const navigate = useNavigate();
 
     return (
-        <div className={styles.mainContent}>
-            <div className={styles.header}>
-                <button onClick={()=>navigate("/")}>INICIO</button>
-                <div className={styles.spacer}></div>
+        <Seccion title="Calendario Escolar">
+            <div className={styles.content}>
+                <h1>Calendarios Oficiales del TecNM</h1>
+                <div className={styles.cards}>
+                    <div className={styles.card}>
+                        <h3 className={styles.title}>Calendario Oficial TecNM 2026</h3>
+                        <p className={styles.description}>Descarga el calendario oficial para el semestre Enero-Junio 2026</p>
+                        <button className={styles.action}><img src={download} alt="Descargar" /></button>
+                    </div>
+                    <div className={styles.card}>
+                        <h3 className={styles.title}>Calendario Oficial TecNM 2026</h3>
+                        <p className={styles.description}>Descarga el calendario oficial para el semestre Enero-Junio 2026</p>
+                        <button className={styles.action}><img src={download} alt="Descargar" /></button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </Seccion>
     )
 }

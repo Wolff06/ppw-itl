@@ -1,12 +1,13 @@
 
 import styles from "./InicioSesion.module.css";
+import logo from '/logos/LogoTecNM.png?url';
 
 export default function InicioSesion() {
     return (
         <div className={styles.content}>
             <div className={styles.loginBox}>
                 <div className={styles.header}>
-                    <div className={styles.logo}><img src="" alt="ITL Logo"/></div>
+                    <div className={styles.logo}><img src={logo} alt="ITL Logo"/></div>
                     <div className={styles.vSpacer}></div>
                     <h3>INSTITUTO TECNOLÓGICO DE LEÓN</h3>
                 </div>
