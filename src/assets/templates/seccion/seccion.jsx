@@ -1,7 +1,7 @@
 
 import styles from './seccion.module.css';
 import {useNavigate} from "react-router-dom";
-import Home from '/icons/outline-home.svg?url';
+import Home from '/src/assets/icons/outline-home.svg?url';
 
 export default function Seccion({children, title}) {
     const navigate = useNavigate();

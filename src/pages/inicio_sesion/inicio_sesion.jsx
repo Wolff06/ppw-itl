@@ -1,6 +1,6 @@
 
 import styles from "./InicioSesion.module.css";
-import logo from '/logos/LogoTecNM.png?url';
+import logo from '../../assets/logos/LogoTecNM.png';
 
 export default function InicioSesion() {
     return (

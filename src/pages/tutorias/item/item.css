@@ -1,0 +1,41 @@
+.card{
+    display: flex;
+    flex-direction: column;
+    min-width: 320px;
+    padding: 10px;
+}
+
+.card .titleBox{
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.card .titleBox .title{
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.card .titleBox .underline{
+    height: 5px;
+    width: 100%;
+    background-color: var(--color-primary-light);
+}
+
+.card .contentBox{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+.card .contentBox .count{
+    font-weight: bold;
+}
+
+.card .contentBox .currentCount{
+    font-weight: bold;
+}

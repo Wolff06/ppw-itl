@@ -1,6 +1,6 @@
 import styles from "./Inicio.module.css";
 import {useNavigate, Link} from 'react-router-dom';
-import logo from '/logos/LogoTecNM.png?url';
+import logo from '../../assets/logos/LogoTecNM.png';
 
 export default function Inicio() {
     const navigate= useNavigate();

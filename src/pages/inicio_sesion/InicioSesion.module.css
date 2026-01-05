@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: var(--color-primary) url("/public/backgrounds/aula_welcome.png");
+    background: var(--color-primary) url("/src/assets/backgrounds/aula_welcome.png");
     background-size: cover;
     height: 100vh;
 }

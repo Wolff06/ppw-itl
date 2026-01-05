@@ -1,6 +1,6 @@
 
 
-import Seccion from "../templates/seccion/seccion.jsx";
+import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import download from "/icons/download.svg?url";
 import styles from "./calendario.module.css";
 

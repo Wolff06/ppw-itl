@@ -1,162 +1,89 @@
-.mainContent{
+.content{
     display: flex;
     flex-direction: column;
-}
-
-.header{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    background-color: var(--color-primary);
-    border-bottom: 10px solid var(--color-primary-light);
-    height: 64px;
-    padding-left: 10px;
-    padding-right: 10px;
-    box-shadow: 0 0 10px 10px rgba(0,0,0,0.2);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.header button{
-    height: 90%;
-    cursor: pointer;
-}
-
-.header h3{
-    color: white;
-    font-size: 2rem;
-    margin: 0;
     height: 100%;
+}
+
+.content .titleBox{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
-.header .spacer{
-    background-color: white;
-    height: 80%;
-    width: 2px;
-    margin-right: 10px;
-    margin-left: 10px;
-}
-
-.header .menu{
-    justify-self: flex-end;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    height: 100%;
-    gap: 10px;
-}
-
-.menu button{
-    height: auto;
-    font-weight: bold;
+.titleBox h1{
     text-transform: uppercase;
-    font-size: 1rem;
-    cursor: pointer;
-    color: whitesmoke;
-    background-color: transparent;
-    border: none;
-    transition: all 0.2s ease-in-out;
-    &:hover{
-        color: gray;
-    }
-    &:active{
-        color: white;
-    }
 }
 
-.header .checkbox{
-    display: none;
-}
-
-.header label{
-    display: none;
+.titleBox .underline{
     width: 50%;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    font-size: 2rem;
-    padding: 5px;
-    cursor: pointer;
-    color: white;
-    transition: color 0.2s ease-in-out;
-    &:active{
-        color: gray;
-    }
+    height: 5px;
+    background-color: var(--color-primary-light);
 }
 
-@media screen and (max-width: 768px) {
-    .header{
-        flex-wrap: wrap;
-        height: auto;
-    }
-
-    .header button{
-        width: 45%;
-        height: 48px;
-    }
-
-    .header .spacer{
-        height: 32px;
-    }
-
-    .header .menu{
-        display: none;
-        padding: 5px;
-    }
-
-    .menu button{
-        width: 100%;
-        text-align: left;
-        border-left: 4px solid var(--color-primary-light);
-        border-bottom: 2px solid var(--color-primary-light);
-    }
-
-    .header label{
-        display: flex;
-        width: 45%;
-        flex-direction: row;
-        align-items: center;
-        justify-self: center;
-    }
-
-    .header .checkbox:checked ~ .menu{
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        align-items: flex-start;
-    }
-
-    .header h3{
-        display: none;
-    }
-}
-
-.tutorBox{
+.content .cardsBox{
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 20px;
 }
 
-.tutorBox .tutorCards{
+.content .decorator1{
+    width: 100%;
+    height: 64px;
+}
+.content .decorator1 img{
+    width: 100%;
+    height: 100%;
+}
+
+.content .about{
+    background-color: var(--color-primary);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: center;
+    padding: 20px;
+    gap: 5px;
 }
 
-.tutorCards .card{
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-    border: 2px solid gray;
-    min-width: 256px;
-    min-height: 256px;
-    padding: 10px;
+.content .about button{
+    width: 45%;
+    font-size: 2rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-decoration: underline;
+    font-weight: bold;
+    background-color: transparent;
+    border: 2px solid transparent;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    &:hover{
+        color: var(--color-primary-light);
+        border-color: var(--color-primary-light);
+        text-decoration: none;
+    }
+    &:active{
+        color: var(--color-primary);
+        border-color: gray;
+    };
+}
+
+.content .hSeparator{
+    width: 100%;
+    height: 10px;
+    background-color: var(--color-primary-light);
+}
+
+.content .footer{
+    background-color: var(--color-primary);
+    flex-grow: 1;
+}
+
+@media screen and (max-width: 768px) {
+    .content .about button{
+        width: 512px;
+    }
 }
