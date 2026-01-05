@@ -47,7 +47,7 @@ export default function Inicio() {
                                 <li><Link to="/tecnoblog">TecnoBlog</Link></li>
                                 <li><Link to="/tutorias">Grupos de Tutorias</Link></li>
                                 <li><Link to="/calendario">Calendario Escolar</Link></li>
-                                <li>Temarios</li>
+                                <li><Link to={"/planes-estudio"}>Planes de Estudio</Link></li>
                             </ul>
                         </div>
                         <div className={styles.item}>

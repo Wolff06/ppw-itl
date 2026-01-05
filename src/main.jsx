@@ -7,6 +7,7 @@ import InicioSesion from "./pages/inicio_sesion/inicio_sesion.jsx";
 import TecnoBlog from "./pages/tecnoblog/tecnoblog.jsx";
 import Tutorias from "./pages/tutorias/tutorias.jsx";
 import Calendario from "./pages/calendario/calendario.jsx";
+import PlanesEstudio from "./pages/temarios/planes_estudio.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="/tecnoblog" element={<TecnoBlog />} />
               <Route path="/tutorias" element={<Tutorias />} />
               <Route path="/calendario" element={<Calendario />} />
+              <Route path="/planes-estudio" element={<PlanesEstudio />} />
           </Routes>
       </BrowserRouter>
   </StrictMode>,

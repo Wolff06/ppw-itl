@@ -102,50 +102,6 @@
 .navbar .login button{
 }
 
-@media screen and (max-width: 768px){
-    .mainContainer .navbar{
-        flex-direction: column;
-        height: auto;
-    }
-
-    .navbar .container {
-        display: none;
-    }
-
-    .navbar .logo{
-        display: none;
-    }
-
-    .navbar .burgerLabel{
-        display: flex;
-        min-height: 48px;
-    }
-
-    .navbar .login .vSpacer{
-        display: none;
-    }
-
-    .navbar .burgerButton:checked ~ .container{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding-left: 10px;
-        gap: 10px;
-    }
-
-    .navbar .burgerButton:checked ~ .burgerLabel{
-        border-bottom: 2px solid white;
-    }
-
-    .navbar .item button{
-        border-left: 2px solid white;
-        min-height: 32px;
-        &:hover{
-            border-left-width: 4px;
-        }
-    }
-}
-
 .content {
     display: flex;
     flex-direction: column;
@@ -208,4 +164,61 @@
 
 .footer a{
     color: white;
+}
+
+@media screen and (max-width: 768px){
+    .mainContainer .navbar{
+        flex-direction: column;
+        height: auto;
+    }
+
+    .navbar .container {
+        display: none;
+    }
+
+    .navbar .logo{
+        display: none;
+    }
+
+    .navbar .burgerLabel{
+        display: flex;
+        min-height: 48px;
+    }
+
+    .navbar .login .vSpacer{
+        display: none;
+    }
+
+    .navbar .burgerButton:checked ~ .container{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
+        gap: 10px;
+    }
+
+    .navbar .burgerButton:checked ~ .burgerLabel{
+        border-bottom: 2px solid white;
+    }
+
+    .navbar .item button{
+        border-left: 2px solid white;
+        min-height: 32px;
+        &:hover{
+            border-left-width: 4px;
+        }
+    }
+
+    .content .body .box{
+        flex-direction: column;
+    }
+
+    .box .item{
+        width: auto;
+        border: 2px dashed var(--color-primary-light);
+    }
+
+    .box .item h3{
+        text-align: left;
+    }
 }
