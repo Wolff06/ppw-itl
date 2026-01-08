@@ -1,7 +1,7 @@
 
 
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
-import download from "/icons/download.svg?url";
+import download from "/src/assets/icons/download.svg";
 import styles from "./calendario.module.css";
 
 export default function Calendario() {
