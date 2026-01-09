@@ -1,73 +1,170 @@
-.content{
+/* ESTILOS ESPECÍFICOS DEL COMPONENTE CALENDARIO */
+.contenido {
+    padding-top: 50px;
+    min-height: calc(100vh - 70px);
+    width: 60%;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    padding: 10px;
-    background-color: var(--color-primary);
+    align-items: center;
+}
+
+.calendario {
+    width: 80%;
+    max-width: 800px;
+    margin: 20px auto 40px;
+    position: relative;
+    text-align: center;
+}
+
+.imagen-mes {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+/* Navegación */
+.nav-meses {
+    position: absolute;
+    top: 50%;
+    right: -60px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 10;
+}
+
+.nav-btn {
+    background-color: rgba(97, 171, 203, 0.8);
     color: white;
-}
-
-.cards{
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 10px;
-    gap: 20px;
-    background-color: white;
-    border-radius: 10px;
-    height: 100%;
-    border: 4px solid var(--color-primary-light);
-}
-
-.card{
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    min-width: 300px;
-    border: 2px solid gray;
-    border-radius: 10px;
-    background-color: white;
-    color: black;
-}
-
-.card .title{
-    display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: center;
-}
-
-.card .description{
-    display: flex;
-}
-
-.card .action{
-    background-color: var(--color-primary);
-    border: 2px solid transparent;
-    height: 32px;
     cursor: pointer;
-    border-radius: 15px;
-    transition: all 0.2s ease-in-out;
-    &:hover{
-        background-color: var(--color-primary-light);
-    }
-    &:active{
-        background-color: gray;
-        border-color: #2e2e2e;
-    }
+    font-size: 24px;
+    transition: all 0.3s;
 }
 
-.card .action img{
-    height: 100%;
+.nav-btn:hover {
+    background-color: rgba(0, 148, 211, 1);
+    transform: scale(1.1);
+}
+
+.nav-btn:focus {
+    outline: 2px solid rgba(0, 148, 211, 0.5);
+    outline-offset: 2px;
+}
+
+/* Indicadores de mes (puntos) */
+.indicadores {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.indicador {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(97, 171, 203, 0.8);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 0;
+}
+
+.indicador:hover {
+    background-color: rgba(97, 171, 203, 0.5);
+    transform: scale(1.2);
+}
+
+.indicador.activo {
+    background-color: rgba(0, 148, 211, 1);
+    border-color: rgba(0, 148, 211, 1);
+}
+
+/* Leyenda */
+.contenedor-leyenda {
+    display: flex;
+    justify-content: center;
     width: 100%;
+    margin: 30px 0;
 }
 
-@media screen and (max-width: 768px){
-    .cards{
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
+.leyenda {
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 80%;
+    border-radius: 8px;
+}
+
+/* Footer específico del componente */
+.footer {
+    background-color: #ffffff;
+    width: 100%;
+    padding: 15px 0;
+    text-align: center;
+    margin-top: auto;
+    border-top: 1px solid #eee;
+}
+
+.footer a {
+    color: #3533cd;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1em;
+    transition: all 0.3s;
+}
+
+.footer a:hover {
+    color: #0094d3;
+    text-decoration: underline;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .contenido {
+        width: 80%;
+    }
+    
+    .calendario {
+        width: 90%;
+    }
+    
+    .nav-meses {
+        right: -40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido {
+        width: 95%;
+        padding-top: 30px;
+    }
+    
+    .nav-meses {
+        position: static;
+        transform: none;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 40px;
+    }
+    
+    .leyenda {
+        max-width: 95%;
     }
 }
