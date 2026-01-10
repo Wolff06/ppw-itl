@@ -8,12 +8,13 @@ import TecnoBlog from "./pages/tecnoblog/tecnoblog.jsx";
 import Tutorias from "./pages/tutorias/tutorias.jsx";
 import Calendario from "./pages/calendario/calendario.jsx";
 import PlanesEstudio from "./pages/temarios/planes_estudio.jsx";
+import Test from "./pages/test/test.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
       <BrowserRouter>
           <Routes>
-              <Route path="/" element={<Inicio />} />
+              <Route path="/" element={<Test />} />
               <Route path="/login" element={<InicioSesion />} />
               <Route path="/tecnoblog" element={<TecnoBlog />} />
               <Route path="/tutorias" element={<Tutorias />} />

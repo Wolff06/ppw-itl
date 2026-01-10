@@ -1,0 +1,39 @@
+{
+  "intents": [
+    {
+      "tag" : "baja de materias",
+      "patterns": ["¿Cómo puedo dar de baja alguna materia?"],
+      "responses": ["Dicho servicio lo puedes encontrar en el edificio E, planta alta en la oficina de tu coordinador (esto solo aplica en la primera semana de clases)"]
+    },
+    {
+      "tag" : "cambio de carrera",
+      "patterns": ["¿Cómo puedo cambiar de carrera?"],
+      "responses": ["Dicho servicio lo puedes encontrar en el edificio B, oficina 102"]
+    },
+    {
+      "tag" : "entrar cetech",
+      "patterns": ["¿Cómo puedo entrar al cetech?"],
+      "responses": ["Puedes acceder a través de este link: https://cetech.leon.tecnm.mx tu cuenta consiste en tu número de control  y la contraseña que se te asignó al momento de ingresar a la institución"]
+    },
+    {
+      "tag" : "horarios de clases",
+      "patterns": ["¿Dónde puedo ver los horarios de clases?"],
+      "responses": ["Puedes consultar los horarios en el siguiente link: https://cetech.leon.tecnm.mx en la sección de horarios, recuerda que debes iniciar sesión con tu cuenta"]
+    },
+    {
+      "tag" : "inscripcion materia",
+      "patterns": ["¿Cómo puedo inscribirme a una materia?"],
+      "responses": ["Dicho servicio lo puedes encontrar en la platafroma del cetech cuando inicie tu proceso de inscripcion o en el edificio E, planta alta en la oficina de tu coordinador (esto solo aplica en la primera semana de clases)"]
+    },
+    {
+      "tag" : "consultar materias",
+      "patterns": ["¿Dónde puedo ver las materias que tengo que cursar?"],
+      "responses": ["Puedes consultar las materias en el siguiente link: https://cetech.leon.tecnm.mx en la sección de kardex descargando la retícula, recuerda que debes iniciar sesión con tu cuenta"]
+    },
+    {
+      "tag" : "pago inscripcion semestre",
+      "patterns": ["¿Cómo puedo pagar mi inscripción?"],
+      "responses": ["Puedes realizar tu pago en el banco BBVA, en la sección de pagos de servicios, recuerda que debes tener el número de referencia que se te proporcionó al momento de inscribirte"]
+    }
+  ]
+}
