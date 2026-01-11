@@ -12,6 +12,8 @@ import Docentes from "./pages/docentes/docentes.jsx";
 import Residencias from "./pages/residencias/residencias.jsx";
 import Solicitudes from './pages/residencias/solicitudes.jsx';
 import Horarios from './pages/horario-materias/horario-materias.jsx';
+import Reportes from './pages/reportes/reportes.jsx';
+import Examenes from './pages/examen-psicometricos/examen-psicometrico.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -27,6 +29,8 @@ createRoot(document.getElementById('root')).render(
               <Route path="/residencias" element={<Residencias />} />
               <Route path="/solicitudes" element={<Solicitudes />} />
               <Route path="/horario-materias" element={<Horarios />} />
+              <Route path="/reportes" element={<Reportes />} />
+              <Route path="/examenes-psicometricos" element={<Examenes />} />
           </Routes>
       </BrowserRouter>
   </StrictMode>,
