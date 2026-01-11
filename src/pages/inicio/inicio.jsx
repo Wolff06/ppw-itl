@@ -2,6 +2,7 @@ import styles from "./Inicio.module.css";
 import {useNavigate, Link} from 'react-router-dom';
 import logo from '../../assets/logos/LogoTecNM.png';
 
+
 export default function Inicio() {
     const navigate= useNavigate();
 
@@ -34,16 +35,16 @@ export default function Inicio() {
                         <div className={styles.item}>
                             <h3>Módulos</h3>
                             <ul>
-                                <li>Residencias</li>
-                                <li>Reportes Académicos</li>
-                                <li>Horario y Materias</li>
-                                <li>Examenes psicométricos</li>
+                                <li><Link to="/residencias">Residencias</Link></li>
+                                <li><Link to="/reportes-academicos">Reportes Académicos</Link></li>
+                                <li><Link to="/horario-materias">Horario y Materias</Link></li>
+                                <li><Link to="/examenes-psicométricos">Examenes psicométricos</Link></li>
                             </ul>
                         </div>
                         <div className={styles.item}>
                             <h3>Información</h3>
                             <ul>
-                                <li>Conoce nuestros docentes</li>
+                                <li><Link to="/docentes">Conoce nuestros docentes</Link></li>
                                 <li><Link to="/tecnoblog">TecnoBlog</Link></li>
                                 <li><Link to="/tutorias">Grupos de Tutorias</Link></li>
                                 <li><Link to="/calendario">Calendario Escolar</Link></li>
