@@ -1,31 +1,193 @@
 
 import styles from "./InicioSesion.module.css";
-import logo from '../../assets/logos/LogoTecNM.png';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logoVertical from '../../assets/backgrounds/LogoTecNMVertical_Blanco-150x150(1).png';
+import iconoITL from '../../assets/logos/itl_icon.png';
+import alumnosBg from '../../assets/backgrounds/alumnos2.jpg';
 
-export default function InicioSesion() {
+export default function Login() {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        id_usuario: '',
+        contrasenia: ''
+    });
+    const [error, setError] = useState('');
+    const [cargando, setCargando] = useState(false);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        setError(''); // Limpiar error al cambiar
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        // Validación básica
+        if (!formData.id_usuario.trim() || !formData.contrasenia.trim()) {
+            setError('Por favor complete todos los campos');
+            return;
+        }
+        
+        setCargando(true);
+        setError('');
+
+        try {
+            // Simular llamada a API de autenticación
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Aquí iría la llamada real a la API:
+            // const response = await fetch('/api/auth/login', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({
+            //         usuario: formData.id_usuario,
+            //         password: formData.contrasenia
+            //     })
+            // });
+            
+            // if (!response.ok) {
+            //     throw new Error('Credenciales incorrectas');
+            // }
+            
+            // const data = await response.json();
+            
+            // Guardar token en localStorage (simulado)
+            const tokenSimulado = 'token_simulado_' + Date.now();
+            localStorage.setItem('authToken', tokenSimulado);
+            localStorage.setItem('userData', JSON.stringify({
+                id: formData.id_usuario,
+                nombre: 'Usuario Demo',
+                rol: 'estudiante'
+            }));
+            
+            // Redirigir al inicio
+            navigate("/");
+            
+        } catch (error) {
+            setError('Credenciales incorrectas. Por favor, intente nuevamente.');
+            console.error('Error de autenticación:', error);
+        } finally {
+            setCargando(false);
+        }
+    };
+
+    // Manejar tecla Enter para enviar
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSubmit(e);
+        }
+    };
+
     return (
-        <div className={styles.content}>
-            <div className={styles.loginBox}>
-                <div className={styles.header}>
-                    <div className={styles.logo}><img src={logo} alt="ITL Logo"/></div>
-                    <div className={styles.vSpacer}></div>
-                    <h3>INSTITUTO TECNOLÓGICO DE LEÓN</h3>
-                </div>
-                <div className={styles.body}>
-                    <h3>INICIAR SESIÓN</h3>
-                    <div className={styles.field}>
-                        <label htmlFor="email">Email</label>
-                        <input type="email" id="email" placeholder="E-mail" required />
+        <div 
+            className={styles.pageContainer}
+            style={{
+                backgroundImage: `linear-gradient(to right,
+                    rgba(23, 34, 77, 1.0) 0%,
+                    rgba(23, 34, 77, 0.55) 50%,
+                    rgba(23, 34, 77, 1.0) 100%
+                ), url(${alumnosBg})`
+            }}
+        >
+            {/* Encabezado */}
+            <header className={styles.encabezado}>
+                <h1>INSTITUTO TECNOLÓGICO DE LEÓN</h1>
+                <img src={logoVertical} alt="LogoTecNM" className={styles.logoVertical} />
+                <img src={iconoITL} alt="Icono Instituto" className={styles.iconoITL} />
+            </header>
+
+            {/* Formulario de Login */}
+            <div className={styles.formContainer}>
+                <fieldset className={styles.fieldset}>
+                    <h1 className={styles.titulo}>INICIO DE SESIÓN</h1>
+
+                    {error && (
+                        <p className={styles.error}>{error}</p>
+                    )}
+
+                    <form onSubmit={handleSubmit} className={styles.formulario}>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="id_usuario" className={styles.formLabel}>
+                                ID de Usuario:
+                            </label>
+                            <input
+                                type="text"
+                                id="id_usuario"
+                                name="id_usuario"
+                                value={formData.id_usuario}
+                                onChange={handleChange}
+                                onKeyPress={handleKeyPress}
+                                className={styles.input}
+                                placeholder="Ingrese su ID de usuario"
+                                required
+                                disabled={cargando}
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label htmlFor="contrasenia" className={styles.formLabel}>
+                                Contraseña:
+                            </label>
+                            <input
+                                type="password"
+                                id="contrasenia"
+                                name="contrasenia"
+                                value={formData.contrasenia}
+                                onChange={handleChange}
+                                onKeyPress={handleKeyPress}
+                                className={styles.input}
+                                placeholder="Ingrese su contraseña"
+                                required
+                                disabled={cargando}
+                            />
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            className={styles.botonIngresar}
+                            disabled={cargando}
+                        >
+                            {cargando ? (
+                                <>
+                                    <span className={styles.spinner}></span>
+                                    INGRESANDO...
+                                </>
+                            ) : (
+                                'INGRESAR'
+                            )}
+                        </button>
+                    </form>
+
+                    {/* Información adicional */}
+                    <div className={styles.infoAdicional}>
+                        <p className={styles.infoTexto}>
+                            <i className="fas fa-info-circle"></i>
+                            Si tiene problemas para ingresar, contacte al departamento de sistemas.
+                        </p>
+                        <p className={styles.contacto}>
+                            <i className="fas fa-envelope"></i>
+                            soporte.sistemas@leon.tecnm.mx
+                        </p>
                     </div>
-                    <div className={styles.field}>
-                        <label htmlFor="password">Contraseña</label>
-                        <input type="password" id="password" placeholder="Password" required />
-                    </div>
-                    <div className={`${styles.field} ${styles.loginBtn}`}>
-                        <button>Ingresar</button>
-                    </div>
-                </div>
+                </fieldset>
             </div>
+
+            {/* Footer */}
+            <footer className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <p>© 2025 TecNM León. Todos los derechos reservados.</p>
+                    <p className={styles.footerInfo}>
+                        Departamento de Sistemas | Tel: 477 710 0000 Ext. 1301
+                    </p>
+                </div>
+            </footer>
         </div>
-    )
+    );
 }
