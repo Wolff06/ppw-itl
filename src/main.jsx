@@ -28,7 +28,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="/planes-estudio" element={<PlanesEstudio />} />
               <Route path="/residencias" element={<Residencias />} />
               <Route path="/solicitudes" element={<Solicitudes />} />
-              <Route path="/horario-materias" element={<Horarios />} />
+              <Route path="/temarios-materias" element={<Horarios />} />
               <Route path="/reportes" element={<Reportes />} />
               <Route path="/examenes-psicometricos" element={<Examenes />} />
           </Routes>

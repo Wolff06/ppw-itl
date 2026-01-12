@@ -20,7 +20,7 @@ export default function Inicio() {
         // 2. Limpiar cookies (si las usas)
         document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         // redirigimos al login
-        navigate("/login");
+        //navigate("/login");
     };
     
     const toggleCerrarSesion = (e) => {
@@ -54,7 +54,7 @@ export default function Inicio() {
             
             // Si no hay token, redirigir al login
             if (!token) {
-                navigate("/login");
+                //navigate("/login");
             }
         };
         
@@ -172,7 +172,7 @@ export default function Inicio() {
                     <h3>Información</h3>
                     <ul className={styles.listaModulos}>
                         <li><Link to="/docentes">Conoce nuestros Docentes</Link></li>
-                        <li><Link to="/foro">Foro</Link></li>
+                        <li><Link to="/tecnoblog">Foro</Link></li>
                         <li><Link to="/tutorias">Grupos de Tutorías</Link></li>
                         <li><Link to="/calendario">Calendario Escolar</Link></li>
                         <li><Link to="/temarios-materias">Temario de Materias</Link></li>
