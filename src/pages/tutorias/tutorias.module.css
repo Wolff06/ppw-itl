@@ -1,89 +1,561 @@
-.content{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.content .titleBox{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-left: 20px;
-    padding-right: 20px;
-}
-
-.titleBox h1{
-    text-transform: uppercase;
-}
-
-.titleBox .underline{
-    width: 50%;
-    height: 5px;
-    background-color: var(--color-primary-light);
-}
-
-.content .cardsBox{
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 20px;
-}
-
-.content .decorator1{
-    width: 100%;
-    height: 64px;
-}
-.content .decorator1 img{
-    width: 100%;
-    height: 100%;
-}
-
-.content .about{
-    background-color: var(--color-primary);
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-    gap: 5px;
-}
-
-.content .about button{
-    width: 45%;
-    font-size: 2rem;
-    cursor: pointer;
-    text-transform: uppercase;
-    text-decoration: underline;
-    font-weight: bold;
-    background-color: transparent;
-    border: 2px solid transparent;
+/* Contenedor principal */
+.pageContainer {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: linear-gradient(to bottom, #000000, #0a1f44);
     color: white;
-    transition: all 0.2s ease-in-out;
-    &:hover{
-        color: var(--color-primary-light);
-        border-color: var(--color-primary-light);
-        text-decoration: none;
-    }
-    &:active{
-        color: var(--color-primary);
-        border-color: gray;
-    };
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
 }
 
-.content .hSeparator{
+/* Fondo marca de agua */
+.fondoMarcaAgua {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 10px;
-    background-color: var(--color-primary-light);
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: 40%;
+    opacity: 0.1;
+    z-index: 0;
+    pointer-events: none;
 }
 
-.content .footer{
-    background-color: var(--color-primary);
+/* Header */
+.header {
+    background: transparent;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: white;
+    letter-spacing: 1px;
+}
+
+/* Navegación */
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.navButton {
+    background: none;
+    border: none;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.navButton:hover {
+    color: #5cd7ff;
+    background: rgba(92, 215, 255, 0.1);
+}
+
+.navHomeButton {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.navHomeButton:hover {
+    background: rgba(92, 215, 255, 0.3);
+    color: #5cd7ff;
+    transform: scale(1.1);
+}
+
+/* Contenido principal */
+.main {
+    text-align: center;
+    padding: 50px 20px;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.tituloPrincipal {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    line-height: 1.3;
+}
+
+.periodo {
+    color: #5cd7ff;
+    font-size: 2rem;
+    display: block;
+    margin-top: 10px;
+    font-weight: 600;
+}
+
+/* Contenedor de tarjetas */
+.cardsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+    padding: 0 20px;
+}
+
+/* Tarjetas */
+.card {
+    background: rgba(10, 10, 35, 0.9);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: left;
+    transition: all 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(92, 215, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    border-color: rgba(92, 215, 255, 0.3);
+}
+
+.cardHeader {
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(92, 215, 255, 0.2);
+    padding-bottom: 15px;
+}
+
+.cardTitle {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: white;
+    line-height: 1.3;
+}
+
+/* Espacios disponibles */
+.espacios {
+    font-weight: bold;
+    display: block;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.espaciosDisponibles {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    border: 1px solid #4caf50;
+}
+
+.espaciosLimitados {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+.espaciosCriticos {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    border: 1px solid #f44336;
+}
+
+/* Lista de información */
+.cardList {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
     flex-grow: 1;
 }
 
-@media screen and (max-width: 768px) {
-    .content .about button{
-        width: 512px;
+.cardList li {
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.cardList i {
+    color: #5cd7ff;
+    width: 20px;
+    margin-top: 3px;
+    font-size: 1rem;
+}
+
+.cardList strong {
+    color: #5cd7ff;
+    margin-right: 5px;
+}
+
+/* Botón de inscripción */
+.botonInscripcion {
+    margin-top: 25px;
+    background: linear-gradient(135deg, #5cd7ff, #0097a7);
+    color: white;
+    border: none;
+    padding: 14px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.botonInscripcion:hover:not(:disabled) {
+    background: linear-gradient(135deg, #00bcd4, #006064);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(92, 215, 255, 0.3);
+}
+
+.botonInscripcion:disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.botonInscripcion i {
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+}
+
+.botonInscripcion:hover:not(:disabled) i {
+    transform: translateX(5px);
+}
+
+/* Información adicional */
+.infoAdicional {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 60px;
+    padding: 0 20px;
+}
+
+.infoBox {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    border: 1px solid rgba(92, 215, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.infoBox:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(92, 215, 255, 0.3);
+}
+
+.infoBox i {
+    font-size: 2.5rem;
+    color: #5cd7ff;
+    margin-bottom: 15px;
+}
+
+.infoBox h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #5cd7ff;
+}
+
+.infoBox p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+/* Footer */
+.footer {
+    background: rgba(10, 10, 35, 0.9);
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin-top: 60px;
+}
+
+.footerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.contacto {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.contacto i {
+    color: #5cd7ff;
+    margin-right: 8px;
+}
+
+.separador {
+    opacity: 0.5;
+}
+
+.derechos {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 20px;
     }
+
+    .nav {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .tituloPrincipal {
+        font-size: 2rem;
+    }
+
+    .periodo {
+        font-size: 1.5rem;
+    }
+
+    .cardsContainer {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+        gap: 25px;
+    }
+
+    .card {
+        padding: 25px;
+    }
+
+    .infoAdicional {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .contacto {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .separador {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .tituloPrincipal {
+        font-size: 1.7rem;
+    }
+
+    .periodo {
+        font-size: 1.3rem;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .navButton {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+
+    .cardTitle {
+        font-size: 1.2rem;
+    }
+
+    .botonInscripcion {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+/* Estilos personalizados para react-toastify */
+:root {
+    --azul-itl: #003366;
+    --azul-itl-claro: #1a4d8c;
+}
+
+.itl-toast {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 51, 102, 0.15);
+}
+
+.Toastify__toast--info {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%);
+    color: var(--azul-itl);
+}
+
+.Toastify__toast--warning {
+    background: linear-gradient(135deg, #fffaf0 0%, #fff5e6 100%);
+    color: #d35400;
+}
+
+.Toastify__close-button {
+    color: var(--azul-itl);
+    opacity: 0.7;
+}
+
+.Toastify__close-button:hover {
+    opacity: 1;
+    color: var(--azul-itl-claro);
+}
+
+.Toastify__progress-bar {
+    background: var(--azul-itl);
+}
+
+.Toastify__toast--info .Toastify__progress-bar {
+    background: var(--azul-itl);
+}
+
+.Toastify__toast--warning .Toastify__progress-bar {
+    background: #d35400;
+}
+
+/* Estilos para las notificaciones de ITL */
+:root {
+    --azul-itl: #003366;
+    --verde-exito: #2e7d32;
+    --rojo-error: #c62828;
+    --naranja-alerta: #d35400;
+}
+
+.itl-toast {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    margin: 10px;
+    border: none;
+}
+
+/* Notificación de éxito (verde) */
+.Toastify__toast--success {
+    background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+    color: #333;
+}
+
+.Toastify__toast--success .Toastify__progress-bar {
+    background: var(--verde-exito);
+}
+
+/* Notificación de error (rojo) */
+.Toastify__toast--error {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    color: #333;
+}
+
+.Toastify__toast--error .Toastify__progress-bar {
+    background: var(--rojo-error);
+}
+
+/* Notificación de info (azul) */
+.Toastify__toast--info {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%);
+    color: #333;
+}
+
+.Toastify__toast--info .Toastify__progress-bar {
+    background: var(--azul-itl);
+}
+
+/* Notificación de warning (naranja) */
+.Toastify__toast--warning {
+    background: linear-gradient(135deg, #fffaf0 0%, #fff5e6 100%);
+    color: #333;
+}
+
+.Toastify__toast--warning .Toastify__progress-bar {
+    background: var(--naranja-alerta);
+}
+
+/* Botón de cerrar personalizado */
+.Toastify__close-button {
+    color: #666;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.Toastify__close-button:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.Toastify__toast {
+    animation: fadeIn 0.3s ease-out;
 }

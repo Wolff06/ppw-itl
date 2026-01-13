@@ -1,0 +1,696 @@
+/* Contenedor principal */
+.pageContainer {
+    min-height: 100vh;
+    background: linear-gradient(to right, #000000, #0a1f44);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    overflow-x: hidden;
+    padding-top: 80px; /* Para compensar la navbar fija */
+}
+
+/* Fondo de marca de agua (para toda la página) */
+.fondoMarcaAgua {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: 500px auto;
+    background-repeat: no-repeat;
+    background-position: -80px center;
+    opacity: 0.06;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 40px 60px;
+    min-height: calc(100vh - 80px);
+    position: relative;
+    flex-direction: column;
+}
+
+/* Indicadores - FIJOS para que no se muevan */
+.indicadores {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+    z-index: 5; /* MENOR que el navbar que debe tener z-index: 1000+ */
+    position: relative;
+    top: 0;
+}
+
+.indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.2);
+}
+
+.indicatorActivo {
+    background: #5cb8e9;
+    border-color: white;
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(92, 184, 233, 0.8);
+}
+
+/* Botones de navegación */
+.navButtonPrev,
+.navButtonNext {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3.5rem;
+    color: white;
+    background: rgba(26, 58, 143, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+}
+
+.navButtonPrev {
+    left: 60px;
+}
+
+.navButtonNext {
+    right: 60px;
+}
+
+.navButtonPrev:hover,
+.navButtonNext:hover {
+    background-color: rgba(26, 58, 143, 0.8);
+    transform: translateY(-50%) scale(1.15);
+    box-shadow: 0 0 25px rgba(92, 184, 233, 0.6);
+    border-color: rgba(92, 184, 233, 0.6);
+}
+
+/* Contenedor de tarjetas */
+.cardsContainer {
+    position: relative;
+    width: 100%;
+    max-width: 950px;
+    height: 580px;
+    margin: 0 auto;
+}
+
+/* Tarjetas */
+.card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(19, 19, 94, 0.95);
+    padding: 40px 50px;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    transition: all 0.5s ease;
+    opacity: 0;
+    transform: translateY(40%);
+    z-index: 1;
+    overflow: hidden;
+    border: 1px solid rgba(92, 184, 233, 0.2);
+}
+
+.cardActiva {
+    opacity: 1;
+    transform: translateY(0);
+    z-index: 2;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(17, 38, 96, 0.7);
+}
+
+/* Logo del TecNM dentro de la tarjeta - MÁS GRANDE */
+.cardLogoFondo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../assets/backgrounds/LogoTecNMVertical_Blanco-150x150(1).png');
+    background-size: 350px auto;
+    background-repeat: no-repeat;
+    background-position: 40px center;
+    opacity: 0.1;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Contenido de la tarjeta */
+.cardContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+}
+
+.quote {
+    font-size: 1.5rem;
+    font-style: italic;
+    margin: 20px 0 40px 0;
+    line-height: 1.8;
+    color: white;
+    text-align: center;
+    padding: 0 30px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.imagenContainer {
+    margin: 20px 0;
+}
+
+.authorImg {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 5px solid #5cb8e9;
+    margin: 0 auto;
+    object-fit: cover;
+    box-shadow: 0 0 30px rgba(92, 184, 233, 0.6);
+    transition: transform 0.3s ease;
+}
+
+.authorImg:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 40px rgba(92, 184, 233, 0.8);
+}
+
+.authorName {
+    font-weight: bold;
+    font-size: 1.6rem;
+    margin: 15px 0 8px 0;
+    color: white;
+    line-height: 1.3;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.authorTitle {
+    font-size: 1.2rem;
+    color: #d1e3ff;
+    margin: 0 0 25px 0;
+    line-height: 1.4;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+/* Botones de reacción */
+.reacciones {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+    padding-top: 25px;
+    border-top: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.likeButton,
+.dislikeButton {
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.likeButton:hover {
+    background: rgba(76, 175, 80, 0.35);
+    border-color: #4CAF50;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+}
+
+.dislikeButton:hover {
+    background: rgba(244, 67, 54, 0.35);
+    border-color: #F44336;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(244, 67, 54, 0.3);
+}
+
+.likeButton i {
+    color: #4CAF50;
+    font-size: 1.2rem;
+}
+
+.dislikeButton i {
+    color: #F44336;
+    font-size: 1.2rem;
+}
+
+.contadorReaccion {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Información del profesor */
+.infoProfesor {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.contador {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    border: 1px solid rgba(92, 184, 233, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer */
+.footer {
+    background: linear-gradient(90deg, #000000, #3533cd);
+    padding: 30px;
+    text-align: center;
+    margin-top: 50px;
+    border-top: 2px solid rgba(92, 184, 233, 0.3);
+}
+
+.footerContent {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.derechos {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* RESPONSIVE - MEDIA QUERIES CORREGIDAS */
+
+/* Tablets y laptops pequeñas */
+@media (max-width: 1200px) {
+    .cardsContainer {
+        max-width: 850px;
+        height: 550px;
+    }
+    
+    .card {
+        padding: 35px 45px;
+    }
+    
+    .quote {
+        font-size: 1.4rem;
+    }
+    
+    .navButtonPrev,
+    .navButtonNext {
+        width: 70px;
+        height: 70px;
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .navButtonPrev {
+        left: 30px;
+    }
+    
+    .navButtonNext {
+        right: 30px;
+    }
+    
+    .cardsContainer {
+        height: 520px;
+        max-width: 750px;
+    }
+    
+    .cardLogoFondo {
+        background-size: 280px auto;
+        background-position: 20px center;
+    }
+    
+    .quote {
+        font-size: 1.3rem;
+        padding: 0 25px;
+    }
+    
+    .authorName {
+        font-size: 1.4rem;
+    }
+    
+    .authorTitle {
+        font-size: 1.1rem;
+    }
+}
+
+/* Tablets */
+@media (max-width: 900px) {
+    .cardsContainer {
+        max-width: 700px;
+        height: 500px;
+    }
+    
+    .card {
+        padding: 30px 35px;
+    }
+    
+    .quote {
+        font-size: 1.25rem;
+        margin: 15px 0 30px 0;
+    }
+    
+    .authorImg {
+        width: 120px;
+        height: 120px;
+        border-width: 4px;
+    }
+    
+    .reacciones {
+        gap: 30px;
+    }
+    
+    .likeButton,
+    .dislikeButton {
+        padding: 10px 25px;
+        min-width: 110px;
+        font-size: 1rem;
+    }
+}
+
+/* Tablets pequeñas y móviles grandes */
+@media (max-width: 768px) {
+    .pageContainer {
+        padding-top: 70px; /* Ajustar según altura real del navbar */
+    }
+    
+    .container {
+        padding: 30px 20px 40px;
+    }
+    
+    .indicadores {
+        margin-bottom: 30px;
+    }
+    
+    .cardsContainer {
+        height: 480px;
+        max-width: 600px;
+        padding: 15px;
+    }
+    
+    .card {
+        padding: 25px 30px;
+        border-radius: 25px;
+    }
+    
+    .quote {
+        font-size: 1.2rem;
+        padding: 0 20px;
+        margin: 10px 0 25px 0;
+        line-height: 1.6;
+    }
+    
+    .authorImg {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .authorName {
+        font-size: 1.3rem;
+        margin: 10px 0 5px 0;
+    }
+    
+    .authorTitle {
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+    
+    .navButtonPrev,
+    .navButtonNext {
+        width: 60px;
+        height: 60px;
+        font-size: 2.5rem;
+    }
+    
+    .cardLogoFondo {
+        background-size: 200px auto;
+        background-position: 15px center;
+    }
+    
+    .reacciones {
+        gap: 25px;
+        margin-top: 15px;
+        padding-top: 20px;
+    }
+    
+    .likeButton,
+    .dislikeButton {
+        padding: 8px 20px;
+        min-width: 100px;
+        font-size: 0.95rem;
+    }
+    
+    .contadorReaccion {
+        font-size: 1.1rem;
+    }
+    
+    .infoProfesor {
+        margin-top: 30px;
+    }
+    
+    .footer {
+        padding: 25px;
+        margin-top: 40px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 650px) {
+    .navButtonPrev {
+        left: 15px;
+    }
+    
+    .navButtonNext {
+        right: 15px;
+    }
+    
+    .cardsContainer {
+        height: 450px;
+        max-width: 500px;
+    }
+    
+    .card {
+        padding: 20px 25px;
+    }
+    
+    .quote {
+        font-size: 1.1rem;
+        padding: 0 15px;
+    }
+    
+    .authorImg {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .navButtonPrev,
+    .navButtonNext {
+        width: 50px;
+        height: 50px;
+        font-size: 2.2rem;
+    }
+    
+    .cardLogoFondo {
+        background-size: 160px auto;
+        background-position: 10px center;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+    .pageContainer {
+        padding-top: 65px;
+    }
+    
+    .container {
+        padding: 25px 15px 35px;
+    }
+    
+    .indicadores {
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+    
+    .indicator {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .cardsContainer {
+        height: 520px; /* Más alto para contenido móvil */
+        max-width: 100%;
+        padding: 10px;
+    }
+    
+    .card {
+        padding: 20px;
+        border-radius: 20px;
+    }
+    
+    .quote {
+        font-size: 1.05rem;
+        margin: 5px 0 20px 0;
+        line-height: 1.5;
+    }
+    
+    .imagenContainer {
+        margin: 15px 0;
+    }
+    
+    .authorImg {
+        width: 90px;
+        height: 90px;
+        border-width: 3px;
+    }
+    
+    .authorName {
+        font-size: 1.2rem;
+        margin: 8px 0 4px 0;
+    }
+    
+    .authorTitle {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+    
+    .navButtonPrev,
+    .navButtonNext {
+        width: 45px;
+        height: 45px;
+        font-size: 1.8rem;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .cardLogoFondo {
+        background-size: 130px auto;
+        background-position: 5px center;
+        opacity: 0.08;
+    }
+    
+    .reacciones {
+        gap: 20px;
+        margin-top: 10px;
+        padding-top: 15px;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .likeButton,
+    .dislikeButton {
+        padding: 7px 15px;
+        min-width: 85px;
+        font-size: 0.85rem;
+        gap: 6px;
+    }
+    
+    .contadorReaccion {
+        font-size: 1rem;
+    }
+    
+    .infoProfesor {
+        margin-top: 25px;
+    }
+    
+    .contador {
+        padding: 8px 20px;
+        font-size: 1rem;
+    }
+    
+    .footer {
+        padding: 20px 15px;
+        margin-top: 30px;
+    }
+    
+    .derechos {
+        font-size: 0.9rem;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+    .cardsContainer {
+        height: 500px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .quote {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+    
+    .authorImg {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .authorName {
+        font-size: 1.1rem;
+    }
+    
+    .authorTitle {
+        font-size: 0.85rem;
+    }
+    
+    .reacciones {
+        gap: 15px;
+    }
+    
+    .likeButton,
+    .dislikeButton {
+        padding: 6px 12px;
+        min-width: 75px;
+        font-size: 0.8rem;
+    }
+    
+    .cardLogoFondo {
+        background-size: 110px auto;
+    }
+}

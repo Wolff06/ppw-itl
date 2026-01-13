@@ -1,117 +1,346 @@
-.content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: var(--color-primary) url("/src/assets/backgrounds/aula_welcome.png");
+/* Contenedor principal */
+.pageContainer {
+    min-height: 100vh;
+    max-width: 100%;
+    padding: 10px;
     background-size: cover;
-    height: 100vh;
-}
-
-.content .loginBox {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
-    background-color: white;
-    border-radius: 15px;
-    min-width: 300px;
-    width: 500px;
-    border: 1px solid #2f2f2f;
-    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
 }
 
-.loginBox .header{
+/* Encabezado */
+.encabezado {
+    font-family: "Poppins", sans-serif;
+    margin-top: 15px;
+    margin-right: 30px;
     display: flex;
-    height: 48px;
-    padding: 5px;
-    flex-direction: row;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
-    border-bottom: 2px solid var(--color-primary-light);
-    background-color: var(--color-primary);
-    color: white;
-    box-sizing: border-box;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.loginBox .header h3{
+.encabezado h1 {
     margin: 0;
-    height: 100%;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    padding: 0 20px;
+    color: white;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.loginBox .header .logo{
-    width: 96px;
-    height: 100%;
-    display: flex;
-}
-
-.loginBox .header .logo img{
-    width: 100%;
+.logoVertical, .iconoITL {
+    height: 70px;
+    width: auto;
     object-fit: contain;
 }
 
-.loginBox .header .vSpacer{
-    width: 2px;
-    height: 100%;
-    background-color: white;
-    margin-left: 4px;
-    margin-right:4px;
+.logoVertical {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.loginBox .body{
+.iconoITL {
+    filter: brightness(1.2) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Contenedor del formulario */
+.formContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 20px;
+}
+
+.fieldset {
     display: flex;
     flex-direction: column;
+    border-radius: 25px;
+    padding: 30px 40px;
+    width: 100%;
+    max-width: 400px;
+    background-color: #d0d3d3;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: none;
 }
 
-.loginBox .body h3{
+.titulo {
+    font-size: 40px;
+    font-weight: bold;
+    color: #17224d;
     text-align: center;
-    margin: 10px 0 0;
+    padding: 5px 60px;
+    margin-bottom: 30px;
+    font-family: "Inria", sans-serif;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.body .field{
+/* Formulario */
+.formulario {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    gap: 5px;
+    align-items: center;
 }
 
-.field label{
-    text-transform: uppercase;
-    font-weight: bold;
+.formGroup {
+    width: 100%;
+    margin-bottom: 15px;
 }
 
-.field label::after{
-    content: '*';
-    vertical-align: super;
-    color: red;
+.formLabel {
+    font-size: 17px;
+    color: #17224d;
+    font-family: "Poppins", sans-serif;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 500;
 }
 
-.field input{
-    padding: 10px;
-    border-radius: 0 10px 10px 0;
-    border-left: 6px solid var(--color-primary-light);
+.input {
+    box-shadow: 0 4px 4px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    margin-bottom: 25px;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: clamp(14px, 2vw, 16px);
+    border: 2px solid transparent;
+    background: white;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-.loginBtn button{
-    width: 90%;
-    align-self: center;
-    height: 32px;
-    background-color: var(--color-primary);
-    cursor: pointer;
-    border: 3px solid transparent;
-    border-radius:  10px;
+.input:focus {
+    outline: none;
+    border-color: #17224d;
+    box-shadow: 0 4px 8px rgba(23, 34, 77, 0.2);
+    transform: translateY(-2px);
+}
+
+.input:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* Botón */
+.botonIngresar {
+    border-radius: 25px;
+    font-size: larger;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
     color: white;
-    font-weight: bold;
-    transition: all 0.2s ease-in-out;
-    text-transform: uppercase;
-    &:hover{
-        background-color: var(--color-primary-light);
-    }
-    &:active{
+    padding: 12px 40px;
+    background: linear-gradient(135deg, #668088 0%, #556b73 100%);
+    margin-bottom: 20px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(102, 128, 136, 0.3);
+}
 
-        border-color: #2f2f2f;
+.botonIngresar:hover:not(:disabled) {
+    background: linear-gradient(135deg, #556b73 0%, #445560 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 128, 136, 0.4);
+}
+
+.botonIngresar:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.botonIngresar:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Spinner de carga */
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Mensaje de error */
+.error {
+    color: #d32f2f;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 15px;
+    background: #ffebee;
+    border-radius: 8px;
+    border-left: 4px solid #d32f2f;
+    margin: 15px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Información adicional */
+.infoAdicional {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(23, 34, 77, 0.05);
+    border-radius: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+.infoTexto {
+    font-size: 14px;
+    color: #17224d;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.infoTexto i {
+    color: #17224d;
+}
+
+.contacto {
+    font-size: 13px;
+    color: #445560;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.contacto i {
+    color: #668088;
+}
+
+/* Footer */
+.footer {
+    margin-top: 30px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    font-size: 14px;
+}
+
+.footerContent {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.footer p {
+    margin: 5px 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.footerInfo {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .encabezado {
+        margin-right: 15px;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .encabezado h1 {
+        font-size: 1.2rem;
+        white-space: normal;
+        padding: 0 10px;
+    }
+
+    .logoVertical, .iconoITL {
+        height: 50px;
+    }
+
+    .fieldset {
+        padding: 20px 25px;
+        max-width: 90%;
+    }
+
+    .titulo {
+        font-size: 32px;
+        padding: 5px 20px;
+    }
+
+    .input {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .botonIngresar {
+        padding: 10px 30px;
+        font-size: 16px;
+        min-width: 180px;
+    }
+
+    .infoAdicional {
+        padding: 10px;
+    }
+
+    .infoTexto, .contacto {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pageContainer {
+        padding: 5px;
+    }
+
+    .titulo {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .fieldset {
+        padding: 15px 20px;
+    }
+
+    .formLabel {
+        font-size: 15px;
+    }
+
+    .input {
+        padding: 8px 12px;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .botonIngresar {
+        padding: 10px 25px;
+        font-size: 15px;
+        min-width: 160px;
+    }
+
+    .footer {
+        padding: 15px;
+        font-size: 12px;
     }
 }

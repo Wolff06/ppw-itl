@@ -1,5 +1,230 @@
-.content{
+/* Estilos globales para esta página (opcional) */
+/*
+:global(body) {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    min-height: 100vh;
+}
+
+:global(body)::before {
+    content: "";
+    background: url("../../assets/backgrounds/looFondo.png") right no-repeat fixed;
+    background-size: cover;
+    opacity: 0.2;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    top: 0;
+    left: 0;
+}
+*/
+
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #000000, #3533cd);
+    color: white;
+    display: flex;
+    padding: 8.5px 0;
+    justify-content: flex-start;
+    align-items: center;
+    font-weight: 700;
+    font-size: 30px;
+    gap: 40px;
+    line-height: 1.2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.navLogo {
+    display: flex;
+    align-items: center;
+    margin-left: 40px;
+}
+
+.homeButton {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.homeButton img {
+    width: 30px;
+    height: auto;
+    transition: opacity 0.3s ease;
+}
+
+.homeButton:hover img {
+    opacity: 0.7;
+}
+
+.navTitle {
+    color: white;
+}
+
+/* Contenido principal */
+.contenido {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(300px, 450px));
+    justify-content: center;
+    padding: 100px 2% 40px; /* Más padding arriba por el navbar fijo */
+    min-height: calc(100vh - 70px);
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 50px;
+    box-sizing: border-box;
+}
+
+/* Columnas */
+.cont-column {
+    text-align: justify;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    height: 100%;
+    gap: 20px;
+}
+
+.cont-column img {
+    width: 85%;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.cont-column h1 {
+    color: #140395;
+    text-align: start;
+    margin: 0;
+    font-size: 1.8em;
+    border-bottom: 2px solid #140395;
+    padding-bottom: 10px;
+}
+
+.cont-column h2 {
+    color: #383737;
+    margin: 0;
+    font-size: 1.4em;
+}
+
+.cont-column h3 {
+    color: #3533cd;
+    margin: 15px 0 10px;
+    font-size: 1.2em;
+}
+
+.cont-column p {
+    margin: 10px 0;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Listas */
+.cont-column ol {
+    padding-left: 25px;
+    margin: 15px 0;
+}
+
+.cont-column ol li {
+    font-weight: 800;
+    color: #37335b;
+    margin-bottom: 10px;
+}
+
+.cont-column ol li ul {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.cont-column ol li ul li {
+    font-weight: 400;
+    color: black;
+    margin-bottom: 5px;
+}
+
+.cont-column ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.cont-column ul li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.cont-column ul li strong {
+    color: #37335b;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .contenido {
+        grid-template-columns: repeat(2, minmax(300px, 1fr));
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenido {
+        grid-template-columns: 1fr;
+        padding: 90px 20px 30px;
+        gap: 30px;
+    }
+    
+    .navbar {
+        font-size: 24px;
+        gap: 20px;
+        padding: 10px 0;
+    }
+    
+    .navLogo {
+        margin-left: 20px;
+    }
+    
+    .cont-column {
+        padding: 20px;
+    }
+    
+    .cont-column h1 {
+        font-size: 1.5em;
+    }
+    
+    .cont-column h2 {
+        font-size: 1.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        font-size: 20px;
+        gap: 15px;
+    }
+    
+    .homeButton img {
+        width: 25px;
+    }
+    
+    .contenido {
+        padding: 80px 15px 20px;
+    }
+    
+    .cont-column {
+        padding: 15px;
+    }
 }

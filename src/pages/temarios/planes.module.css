@@ -1,92 +1,363 @@
-.content{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+/* Contenedor principal */
+.contenedorPrincipal {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.content .titleBox{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: var(--color-primary);
-    padding: 10px;
-    color: white;
+/* Buscador */
+.buscadorContainer {
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.content .titleBox h1{
-    margin: 0;
-    text-transform: uppercase;
+.buscadorWrapper {
     position: relative;
-    bottom: -10px;
-}
-
-.content .decorator{
-    height: 48px;
-}
-
-.content .decorator img{
     width: 100%;
-    height: 100%;
-}
-
-.content .listsBox{
     display: flex;
-    flex-direction: column;
+    align-items: center;
 }
 
-.content .listsBox .hSeparator{
-    width: 90%;
-    height: 3px;
-    margin: 10px;
-    background-color: var(--color-primary);
+.buscadorInput {
+    width: 100%;
+    padding: 14px 50px 14px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 30px;
+    outline: none;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    background: white;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
-.content .listsBox .list{
+.buscadorInput:focus {
+    border-color: #3533cd;
+    box-shadow: 0 3px 15px rgba(53, 51, 205, 0.2);
+    transform: translateY(-2px);
+}
+
+.buscadorInput::placeholder {
+    color: #999;
+    font-size: 15px;
+}
+
+.buscadorIcono {
+    position: absolute;
+    right: 50px;
+    color: #777;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.botonLimpiar {
+    position: absolute;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s;
+}
+
+.botonLimpiar:hover {
+    color: #ff4444;
+}
+
+/* Información de resultados */
+.infoResultados {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+    padding: 0 10px;
+}
+
+.contadorResultados {
+    color: white;
+    background: linear-gradient(135deg, #3533cd, #0094d3);
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.enlaceLimpiar {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    padding: 0;
+    transition: color 0.3s;
+}
+
+.enlaceLimpiar:hover {
+    color: #3533cd;
+}
+
+/* Header de búsqueda */
+.headerBusqueda {
+    background: linear-gradient(135deg, #3533cd, #0094d3);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(53, 51, 205, 0.2);
+}
+
+.headerBusqueda h3 {
+    color: white;
+    margin: 0 0 8px 0;
+    font-size: 1.5rem;
+    border: none;
+}
+
+.headerBusqueda p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+/* Contenido de materias */
+.contenidoMaterias {
+    margin: 30px 0;
+}
+
+/* Semestre */
+.semestre {
+    background: white;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid #3533cd;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.tituloSemestre {
+    color: #17224d;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #146689;
+}
+
+/* Lista de materias */
+.listaMaterias {
     list-style-type: none;
-}
-
-.content .listsBox .list h2{
+    padding-left: 0;
     margin: 0;
 }
 
-.content .listsBox .list li{
-    margin: 10px;
-    display: flex;
-    flex-direction: column;
+.itemMateria {
+    margin-bottom: 15px;
+    position: relative;
+    padding-left: 25px;
+    font-size: 1.1rem;
 }
 
-.cardsBox{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 10px;
-    gap: 20px;
+.itemMateria::before {
+    content: "•";
+    color: #265264;
+    font-size: 1.8rem;
+    position: absolute;
+    left: 0;
+    top: -5px;
 }
 
-.cardsBox .card{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 160px;
-    min-height: 96px;
-    text-wrap: wrap;
-    text-transform: uppercase;
+.enlaceMateria {
+    color: #02092a;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-block;
+    padding: 8px 0;
+}
+
+.enlaceMateria:hover {
+    color: #0094d3;
+    text-decoration: underline;
+    transform: translateX(8px);
+}
+
+.resaltado {
+    background-color: #fffacd;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: #d35400;
+    font-weight: bold;
+}
+
+/* Sin materias */
+.sinMaterias {
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+/* Sin resultados */
+.sinResultados {
+    text-align: center;
+    padding: 60px 40px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin: 40px 0;
+}
+
+.sinResultados i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.sinResultados h3 {
+    color: #666;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+}
+
+.sinResultados p {
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+/* Botones */
+.botonPrincipal {
+    background: linear-gradient(135deg, #3533cd, #0094d3);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
     font-size: 1rem;
-    border: 3px solid var(--color-primary);
-    border-radius: 10px;
-    background-color: transparent;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    &:hover{
-        background-color: var(--color-primary);
-        transform: scale(1.05);
-        color: white;
-        border-color: var(--color-primary-light);
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.botonPrincipal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(53, 51, 205, 0.3);
+}
+
+/* Sección de descarga */
+.seccionDescarga {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px dashed #ddd;
+}
+
+.botonDescarga {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 25px;
+    border: none;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.botonDescarga:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
-    &:active{
-        background-color: var(--color-primary-light);
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .contenedorPrincipal {
+        padding: 15px;
+    }
+    
+    .buscadorContainer {
+        margin-bottom: 20px;
+    }
+    
+    .buscadorInput {
+        padding: 12px 45px 12px 15px;
+        font-size: 15px;
+    }
+    
+    .buscadorIcono {
+        right: 45px;
+    }
+    
+    .semestre {
+        padding: 20px;
+    }
+    
+    .tituloSemestre {
+        font-size: 1.4rem;
+    }
+    
+    .itemMateria {
+        font-size: 1rem;
+        padding-left: 20px;
+    }
+    
+    .sinResultados {
+        padding: 40px 20px;
+    }
+    
+    .botonDescarga {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .buscadorInput {
+        font-size: 14px;
+    }
+    
+    .headerBusqueda {
+        padding: 15px 20px;
+    }
+    
+    .headerBusqueda h3 {
+        font-size: 1.3rem;
+    }
+    
+    .infoResultados {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
 }
