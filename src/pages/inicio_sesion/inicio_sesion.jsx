@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import logoVertical from '../../assets/backgrounds/LogoTecNMVertical_Blanco-150x150(1).png';
 import iconoITL from '../../assets/logos/itl_icon.png';
 import alumnosBg from '../../assets/backgrounds/alumnos2.jpg';
+import {handleLogin} from "../../assets/scripts/serverless/auth.js";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -38,37 +39,11 @@ export default function Login() {
 
         try {
             // Simular llamada a API de autenticación
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Aquí iría la llamada real a la API:
-            // const response = await fetch('/api/auth/login', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         usuario: formData.id_usuario,
-            //         password: formData.contrasenia
-            //     })
-            // });
-            
-            // if (!response.ok) {
-            //     throw new Error('Credenciales incorrectas');
-            // }
-            
-            // const data = await response.json();
-            
-            // Guardar token en localStorage (simulado)
-            const tokenSimulado = 'token_simulado_' + Date.now();
-            localStorage.setItem('authToken', tokenSimulado);
-            localStorage.setItem('userData', JSON.stringify({
-                id: formData.id_usuario,
-                nombre: 'Usuario Demo',
-                rol: 'estudiante'
-            }));
-            
-            // Redirigir al inicio
-            navigate("/");
+            await handleLogin(formData.id_usuario, formData.contrasenia).then((data)=>{
+                console.log(data.user);
+                // Redirigir al inicio
+                navigate("/inicio");
+            });
             
         } catch (error) {
             setError('Credenciales incorrectas. Por favor, intente nuevamente.');

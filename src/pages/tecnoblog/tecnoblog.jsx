@@ -17,7 +17,7 @@ export default function TecnoBlog() {
                 <div className={styles.navbar}>
                     <div className={styles.navLogo}>
                         <button 
-                            onClick={() => navigate('/')}
+                            onClick={() => navigate('/inicio')}
                             className={styles.homeButton}
                             aria-label="Regresar al inicio"
                         >

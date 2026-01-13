@@ -14,13 +14,14 @@ import Solicitudes from './pages/residencias/solicitudes.jsx';
 import Horarios from './pages/horario-materias/horario-materias.jsx';
 import Reportes from './pages/reportes/reportes.jsx';
 import Examenes from './pages/examen-psicometricos/examen-psicometrico.jsx';
+import ProtectedRoute from "./assets/scripts/serverless/protectedRoute.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
       <BrowserRouter>
           <Routes>
-              <Route path="/" element={<Inicio />} />
-              <Route path="/login" element={<InicioSesion />} />
+              <Route path="/" element={<InicioSesion />} />
+              <Route path="/inicio" element={<ProtectedRoute><Inicio /></ProtectedRoute>} />
               <Route path="/tecnoblog" element={<TecnoBlog />} />
               <Route path="/tutorias" element={<Tutorias />} />
               <Route path="/calendario" element={<Calendario />} />

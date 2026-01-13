@@ -4,21 +4,15 @@ import { useState, useEffect } from 'react';
 import logo from '../../assets/logos/LogoTecNM.png';
 import leonbotImg from '../../assets/icons/leonbot.png'; 
 import usuarioIcon from '../../assets/profesores/usuario_icon.png'; 
-import universitariosBg from '../../assets/backgrounds/universitarios.jpg'; 
+import universitariosBg from '../../assets/backgrounds/universitarios.jpg';
+import {handleLogout} from "../../assets/scripts/serverless/auth.js";
 
 export default function Inicio() {
     const navigate = useNavigate();
     const [mostrarCerrarSesion, setMostrarCerrarSesion] = useState(false);
     
-    const handleLogout = () => {
-        // Aquí iría la lógica real de logout
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
-        sessionStorage.removeItem('authToken');
-        sessionStorage.removeItem('userData');
-        
-        // 2. Limpiar cookies (si las usas)
-        document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    const logout = () => {
+        handleLogout().then(()=> navigate("/"));
         // redirigimos al login
         //navigate("/login");
     };
@@ -102,7 +96,7 @@ export default function Inicio() {
                             className={styles.cierreSesion}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <Link to="#" onClick={handleLogout}>
+                            <Link to="#" onClick={logout}>
                                 Cerrar sesión <i className="fas fa-sign-out-alt"></i>
                             </Link>
                         </div>
