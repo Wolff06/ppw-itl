@@ -1,10 +1,10 @@
-
 import styles from "./InicioSesion.module.css";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoVertical from '../../assets/backgrounds/LogoTecNMVertical_Blanco-150x150(1).png';
 import iconoITL from '../../assets/logos/itl_icon.png';
 import alumnosBg from '../../assets/backgrounds/alumnos2.jpg';
+import { supabase } from '../../lib/supabase.js'; 
 
 export default function Login() {
     const navigate = useNavigate();
@@ -37,42 +37,48 @@ export default function Login() {
         setError('');
 
         try {
-            // Simular llamada a API de autenticación
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Aquí iría la llamada real a la API:
-            // const response = await fetch('/api/auth/login', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         usuario: formData.id_usuario,
-            //         password: formData.contrasenia
-            //     })
-            // });
-            
-            // if (!response.ok) {
-            //     throw new Error('Credenciales incorrectas');
-            // }
-            
-            // const data = await response.json();
-            
-            // Guardar token en localStorage (simulado)
-            const tokenSimulado = 'token_simulado_' + Date.now();
-            localStorage.setItem('authToken', tokenSimulado);
+            // Consulta a Supabase para verificar credenciales
+            const { data, error: supabaseError } = await supabase
+                .from('usuario')
+                .select('id_usuario, nombre, apellido, tipo, contrasenia')
+                .eq('id_usuario', formData.id_usuario.trim())
+                .single(); // Esperamos un solo resultado
+
+            // Si hay error en la consulta o no se encuentra el usuario
+            if (supabaseError || !data) {
+                console.error('Error Supabase:', supabaseError);
+                setError('Usuario no encontrado');
+                setCargando(false);
+                return;
+            }
+
+            // Verificar contraseña (comparación directa)
+            // IMPORTANTE: Esto NO es seguro para producción
+            // En producción deberías usar hashing y comparación segura
+            if (data.contrasenia !== formData.contrasenia) {
+                setError('Contraseña incorrecta');
+                setCargando(false);
+                return;
+            }
+
+            // Credenciales correctas - guardar datos del usuario
+            localStorage.setItem('authToken', 'authenticated');
             localStorage.setItem('userData', JSON.stringify({
-                id: formData.id_usuario,
-                nombre: 'Usuario Demo',
-                rol: 'estudiante'
+                id: data.Id_usuario,
+                nombre: data.Nombre,
+                apellido: data.Apellido,
+                tipo: data.Tipo,
+                nombreCompleto: `${data.Nombre} ${data.Apellido}`
             }));
             
-            // Redirigir al inicio
-            navigate("/");
+            console.log('Login exitoso:', data);
+            
+            // Redirigir a la página de inicio
+            navigate("/inicio");
             
         } catch (error) {
-            setError('Credenciales incorrectas. Por favor, intente nuevamente.');
-            console.error('Error de autenticación:', error);
+            console.error('Error en autenticación:', error);
+            setError('Error al conectar con el servidor. Por favor, intente más tarde.');
         } finally {
             setCargando(false);
         }

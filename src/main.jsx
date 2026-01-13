@@ -14,13 +14,14 @@ import Solicitudes from './pages/residencias/solicitudes.jsx';
 import Horarios from './pages/horario-materias/horario-materias.jsx';
 import Reportes from './pages/reportes/reportes.jsx';
 import Examenes from './pages/examen-psicometricos/examen-psicometrico.jsx';
+//import TestConexion from './TestSupabase.jsx'; --prueba de conexion
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
       <BrowserRouter>
           <Routes>
-              <Route path="/" element={<Inicio />} />
-              <Route path="/login" element={<InicioSesion />} />
+              <Route path="/" element={<InicioSesion />} />
+              <Route path="/inicio" element={<Inicio />} />
               <Route path="/tecnoblog" element={<TecnoBlog />} />
               <Route path="/tutorias" element={<Tutorias />} />
               <Route path="/calendario" element={<Calendario />} />
@@ -31,7 +32,8 @@ createRoot(document.getElementById('root')).render(
               <Route path="/temarios-materias" element={<Horarios />} />
               <Route path="/reportes" element={<Reportes />} />
               <Route path="/examenes-psicometricos" element={<Examenes />} />
+              <Route path="/test-db" element={<TestConexion />} />
           </Routes>
       </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 )
