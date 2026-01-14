@@ -9,7 +9,7 @@ export default function Seccion({children, title}) {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <button onClick={()=>navigate("/")}
+                <button onClick={()=>navigate("/inicio")}
                 className={styles.home}><img src={Home} alt="Inicio"/></button>
                 <div className={styles.vSpacer}></div>
                 <div className={styles.title}><h1>{title}</h1></div>

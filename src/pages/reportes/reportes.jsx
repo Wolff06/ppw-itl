@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import styles from './reportes.module.css';
-
-
+import { useAuth } from '../../context/authContext';
+import { supabase } from '../../lib/supabase';
 
 export default function Reportes() {
     const navigate = useNavigate();
+    const { user, isAuthenticated, loading: authLoading } = useAuth();
     
     // Estados del formulario
     const [formData, setFormData] = useState({
-        nombre: "Juan Pérez", // Estos vendrían del usuario logueado
-        numero_control: "202512345", // Estos vendrían del usuario logueado
+        nombre: "",
+        numero_control: "",
         situacion: '',
         archivo: null
     });
@@ -22,14 +23,48 @@ export default function Reportes() {
     const [error, setError] = useState('');
     const [archivoNombre, setArchivoNombre] = useState('');
     const [esValido, setEsValido] = useState(false);
+    const [carreraUsuario, setCarreraUsuario] = useState('');
     
-    // Simular datos del usuario (en una app real vendrían de auth/context)
-    const usuario = {
-        nombre: "Juan Pérez",
-        matricula: "202512345",
-        carrera: "Ingeniería en Sistemas Computacionales",
-        email: "juan.perez@leon.tecnm.mx"
-    };
+    // Cargar datos del usuario cuando se autentica
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                nombre: user.nombreCompleto || `${user.nombre} ${user.apellido}`,
+                numero_control: user.id
+            }));
+            
+            // Si no tenemos carrera en el usuario, obtenerla de la tabla alumno
+            if (!user.Carrera && user.id) {
+                const obtenerCarrera = async () => {
+                    try {
+                        const { data, error } = await supabase
+                            .from('alumno')
+                            .select('carrera')
+                            .eq('no_control', user.id)
+                            .single();
+                            
+                        if (!error && data) {
+                            setCarreraUsuario(data.carrera);
+                        }
+                    } catch (err) {
+                        console.error('Error al obtener carrera:', err);
+                    }
+                };
+                
+                obtenerCarrera();
+            } else {
+                setCarreraUsuario(user.Carrera || '');
+            }
+        }
+    }, [user]);
+
+    // Verificar autenticación
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            navigate('/');
+        }
+    }, [authLoading, isAuthenticated, navigate]);
 
     // Validar formulario en cada cambio
     useEffect(() => {
@@ -84,7 +119,7 @@ export default function Reportes() {
         document.getElementById('archivo').value = '';
     };
 
-    // Enviar formulario
+    // Enviar formulario a Supabase
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -93,44 +128,66 @@ export default function Reportes() {
             return;
         }
         
+        if (!user || !user.id) {
+            setError('Usuario no identificado');
+            return;
+        }
+        
         setCargando(true);
         setError('');
         
         try {
-            // Simular envío a API
-            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            const idAlumno = parseInt(user.id);
+            if (isNaN(idAlumno)) {
+                throw new Error('El número de control no es válido');
+            }
+
+            // Preparar datos para insertar en Supabase
+            const reporteData = {
+                id_alumno: idAlumno,
+                situacion: formData.situacion,
+                archivopdf: archivoNombre || null,
             
-            // Aquí iría la llamada real a la API:
-            // const formDataToSend = new FormData();
-            // formDataToSend.append('nombre', formData.nombre);
-            // formDataToSend.append('numero_control', formData.numero_control);
-            // formDataToSend.append('situacion', formData.situacion);
-            // if (formData.archivo) {
-            //     formDataToSend.append('archivo', formData.archivo);
-            // }
+            };
+            console.log('Intentando insertar:', reporteData);
+            // Insertar en la tabla reporte
+            const { data, error: supabaseError } = await supabase
+                .from('reporte')
+                .insert([reporteData])
+                .select();
             
-            // const response = await fetch('/api/reportes/enviar', {
-            //     method: 'POST',
-            //     body: formDataToSend
-            // });
+            if (supabaseError) {
+            console.error('Error de Supabase:', supabaseError);
             
-            // if (!response.ok) throw new Error('Error al enviar el reporte');
-            
-            // Mostrar modal de éxito
-            setMostrarModal(true);
+            // Mensajes más específicos
+            if (supabaseError.code === '23503') {
+                throw new Error(`El alumno con número de control ${user.id} no existe en la base de datos.`);
+            } else if (supabaseError.code === '42501') {
+                throw new Error('No tiene permisos para realizar esta acción. Contacte al administrador.');
+            } else if (supabaseError.message.includes('violates foreign key constraint')) {
+                throw new Error('Error: El número de control no existe en la tabla Alumno.');
+            } else {
+                throw new Error(`Error: ${supabaseError.message} (Código: ${supabaseError.code})`);
+            }
+        }
+
+             // Mostrar modal de éxito
+             setMostrarModal(true);
+
             
             // Limpiar formulario
             setFormData({
-                nombre: usuario.nombre,
-                numero_control: usuario.matricula,
+                nombre: user.nombreCompleto || `${user.nombre} ${user.apellido}`,
+                numero_control: user.id,
                 situacion: '',
                 archivo: null
             });
             setArchivoNombre('');
             
         } catch (error) {
+            console.error('Error al enviar reporte:', error);
             setError('Error al enviar el reporte. Por favor, intente nuevamente.');
-            console.error('Error:', error);
         } finally {
             setCargando(false);
         }
@@ -145,10 +202,10 @@ export default function Reportes() {
     const handleCancelar = () => {
         if (formData.situacion.trim() !== '' || formData.archivo) {
             if (window.confirm('¿Está seguro de cancelar? Se perderán los datos ingresados.')) {
-                navigate('/');
+                navigate('/inicio');
             }
         } else {
-            navigate('/');
+            navigate('/inicio');
         }
     };
 
@@ -163,6 +220,24 @@ export default function Reportes() {
         window.addEventListener('keydown', handleEscape);
         return () => window.removeEventListener('keydown', handleEscape);
     }, [mostrarModal]);
+
+    // Mostrar loading mientras se verifica autenticación
+    if (authLoading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh'
+            }}>
+                <div>Cargando...</div>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return null; // No renderizar mientras redirige
+    }
 
     return (
         <Seccion title="REPORTES ACADÉMICOS">
@@ -180,16 +255,20 @@ export default function Reportes() {
                             <div className={styles.usuarioDetails}>
                                 <div className={styles.usuarioItem}>
                                     <span className={styles.usuarioLabel}>Nombre:</span>
-                                    <span className={styles.usuarioValue}>{usuario.nombre}</span>
+                                    <span className={styles.usuarioValue}>{formData.nombre}</span>
                                 </div>
                                 <div className={styles.usuarioItem}>
                                     <span className={styles.usuarioLabel}>Matrícula:</span>
-                                    <span className={styles.usuarioValue}>{usuario.matricula}</span>
+                                    <span className={styles.usuarioValue}>{formData.numero_control}</span>
                                 </div>
-                                <div className={styles.usuarioItem}>
-                                    <span className={styles.usuarioLabel}>Carrera:</span>
-                                    <span className={styles.usuarioValue}>{usuario.carrera}</span>
-                                </div>
+                                {(carreraUsuario || user.Carrera) && (
+                                    <div className={styles.usuarioItem}>
+                                        <span className={styles.usuarioLabel}>Carrera:</span>
+                                        <span className={styles.usuarioValue}>
+                                            {carreraUsuario || user.Carrera}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -250,6 +329,7 @@ export default function Reportes() {
                                     placeholder="Describa detalladamente la situación que desea reportar..."
                                     className={styles.formTextarea}
                                     rows={6}
+                                    maxLength={2000}
                                 />
                                 <p className={styles.formHint}>
                                     <i className="fas fa-lightbulb"></i>
@@ -421,7 +501,7 @@ export default function Reportes() {
                                             <i className="fas fa-user"></i>
                                             <div>
                                                 <strong>Reportante:</strong>
-                                                <span>{usuario.nombre}</span>
+                                                <span>{formData.nombre}</span>
                                             </div>
                                         </div>
                                     </div>
