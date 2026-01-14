@@ -1,13 +1,15 @@
 import styles from "./InicioSesion.module.css";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/authContext';
 import logoVertical from '../../assets/backgrounds/LogoTecNMVertical_Blanco-150x150(1).png';
 import iconoITL from '../../assets/logos/itl_icon.png';
 import alumnosBg from '../../assets/backgrounds/alumnos2.jpg';
-import { supabase } from '../../lib/supabase.js'; 
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth(); 
+
     const [formData, setFormData] = useState({
         id_usuario: '',
         contrasenia: ''
@@ -38,47 +40,24 @@ export default function Login() {
 
         try {
             // Consulta a Supabase para verificar credenciales
-            const { data, error: supabaseError } = await supabase
-                .from('usuario')
-                .select('id_usuario, nombre, apellido, tipo, contrasenia')
-                .eq('id_usuario', formData.id_usuario.trim())
-                .single(); // Esperamos un solo resultado
+            const result = await login(formData.id_usuario, formData.contrasenia);
 
-            // Si hay error en la consulta o no se encuentra el usuario
-            if (supabaseError || !data) {
-                console.error('Error Supabase:', supabaseError);
-                setError('Usuario no encontrado');
-                setCargando(false);
-                return;
+
+             if (result.success) {
+                // Redirigir según el tipo de usuario
+                if (result.user.tipo  && result.user.tipo.toLowerCase().includes('alumno')) {
+                    navigate("/inicio");
+                } else if (result.user.tipo  && result.user.tipo.toLowerCase().includes('profesor')) {
+                    navigate("/inicio");
+                } else {
+                    navigate("/inicio");
+                }
+            } else {
+                setError(result.message || 'Credenciales incorrectas');
             }
-
-            // Verificar contraseña (comparación directa)
-            // IMPORTANTE: Esto NO es seguro para producción
-            // En producción deberías usar hashing y comparación segura
-            if (data.contrasenia !== formData.contrasenia) {
-                setError('Contraseña incorrecta');
-                setCargando(false);
-                return;
-            }
-
-            // Credenciales correctas - guardar datos del usuario
-            localStorage.setItem('authToken', 'authenticated');
-            localStorage.setItem('userData', JSON.stringify({
-                id: data.Id_usuario,
-                nombre: data.Nombre,
-                apellido: data.Apellido,
-                tipo: data.Tipo,
-                nombreCompleto: `${data.Nombre} ${data.Apellido}`
-            }));
-            
-            console.log('Login exitoso:', data);
-            
-            // Redirigir a la página de inicio
-            navigate("/inicio");
-            
         } catch (error) {
             console.error('Error en autenticación:', error);
-            setError('Error al conectar con el servidor. Por favor, intente más tarde.');
+            setError('Error al conectar con el servidor');
         } finally {
             setCargando(false);
         }
