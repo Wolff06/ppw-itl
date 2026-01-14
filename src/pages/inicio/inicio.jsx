@@ -162,7 +162,7 @@ export default function Inicio() {
                     <ul className={styles.listaModulos}>
                         <li><Link to="/residencias">Residencias</Link></li>
                         <li><Link to="/reportes">Reportes Académicos</Link></li>
-                        <li><Link to="/horario-materias">Horario y Materias</Link></li>
+                        <li><Link to="/temarios-materias">Horario y Materias</Link></li>
                         <li><Link to="/examenes-psicometricos">Examenes Psicométricos</Link></li>
                     </ul>
                 </div>
@@ -175,7 +175,7 @@ export default function Inicio() {
                         <li><Link to="/tecnoblog">Foro</Link></li>
                         <li><Link to="/tutorias">Grupos de Tutorías</Link></li>
                         <li><Link to="/calendario">Calendario Escolar</Link></li>
-                        <li><Link to="/temarios-materias">Temario de Materias</Link></li>
+                        <li><Link to="/planes-estudio">Temario de Materias</Link></li>
                     </ul>
                 </div>
 
