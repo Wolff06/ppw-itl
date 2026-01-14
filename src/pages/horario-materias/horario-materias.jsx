@@ -1,33 +1,161 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import styles from './horarios.module.css';
+import { useAuth } from '../../context/authContext'; 
+import { supabase } from '../../lib/supabase'; // Descomenta esto
 
 export default function Horarios() {
     const navigate = useNavigate();
+    const { user, isAuthenticated, loading: authLoading } = useAuth();
     
-    // Estados para los horarios
+    // ⭐ TODOS LOS HOOKS AL PRINCIPIO, ANTES DE CUALQUIER CONDICIONAL
     const [horarios, setHorarios] = useState([]);
     const [semestreActual, setSemestreActual] = useState('');
     const [busqueda, setBusqueda] = useState('');
     const [materiasFiltradas, setMateriasFiltradas] = useState([]);
     const [cargando, setCargando] = useState(true);
-    
-    // Datos de ejemplo - Simulación de base de datos
-    const datosHorariosEjemplo = {
-        usuario: {
-            id: 1,
-            nombre: "Juan Pérez",
-            matricula: "202512345",
-            carrera: "Ingeniería en Sistemas Computacionales",
-            semestre: 5
-        },
-        horarios: [
+    const [error, setError] = useState('');
+
+    // Días de la semana para la tabla
+    const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+
+    // ⭐ Verificación de autenticación
+    useEffect(() => {
+        if (!authLoading && !isAuthenticated) {
+            navigate('/');
+        }
+    }, [authLoading, isAuthenticated, navigate]);
+
+    // ⭐ Cargar horario solo si está autenticado
+    useEffect(() => {
+        const cargarHorario = async () => {
+            // Si no está autenticado o aún está cargando, no hacer nada
+            if (authLoading || !isAuthenticated || !user || !user.id) {
+                return;
+            }
+
+            try {
+                setCargando(true);
+                setError('');
+                
+                // 1. Obtener semestre y carrera del alumno
+                const { data: alumnoData, error: alumnoError } = await supabase
+                    .from('alumno')
+                    .select('semestre, carrera')
+                    .eq('no_control', user.id)
+                    .single();
+                    
+                if (alumnoError) throw alumnoError;
+                
+                if (alumnoData) {
+                    setSemestreActual(alumnoData.semestre);
+                    // Actualizar usuario en localStorage con semestre
+                    const updatedUser = {
+                        ...user,
+                        Semestre: alumnoData.semestre,
+                        Carrera: alumnoData.carrera
+                    };
+                    localStorage.setItem('userData', JSON.stringify(updatedUser));
+                }
+
+                // 2. Obtener horario del alumno desde la vista
+                const { data: horarioData, error: horarioError } = await supabase
+                    .from('vista_horario_alumno')
+                    .select('*')
+                    .eq('id_alumno', user.id);
+                   
+                if (horarioError) throw horarioError;
+
+                // 3. Procesar datos (pasar semestre como parámetro)
+                const horariosProcesados = procesarHorariosParaTabla(
+                    horarioData, 
+                    alumnoData?.semestre || '6'
+                );
+                
+                setHorarios(horariosProcesados);
+                setMateriasFiltradas(horariosProcesados);
+                
+            } catch (err) {
+                console.error('Error al cargar horario:', err);
+                setError('Error al cargar el horario. Intente más tarde.');
+                
+                // Mostrar datos de ejemplo como respaldo
+                const datosEjemplo = obtenerDatosEjemplo();
+                setHorarios(datosEjemplo);
+                setMateriasFiltradas(datosEjemplo);
+                setSemestreActual(user?.Semestre || '6');
+            } finally {
+                setCargando(false);
+            }
+        };
+        
+        cargarHorario();
+    }, [user, isAuthenticated, authLoading]); // ⭐ Dependencias correctas
+
+    // Función para procesar los datos del horario (con parámetro de semestre)
+    const procesarHorariosParaTabla = (data, semestreParam) => {
+        // Agrupar por materia
+        const materiasAgrupadas = {};
+        
+        // Verificar que haya datos
+        if (!data || data.length === 0) {
+            return [];
+        }
+        
+        data.forEach(item => {
+            const clave = `${item.id_materia}-${item.materia_nombre}`;
+
+            if (!materiasAgrupadas[clave]) {
+                materiasAgrupadas[clave] = {
+                    id: item.id_materia,
+                    semestre: semestreParam.toString(),
+                    materia: item.materia_nombre,
+                    clave: item.id_materia.toString(),
+                    profesor: item.profesor_nombre,
+                    creditos: item.creditos,
+                    lunes: '',
+                    martes: '',
+                    miercoles: '',
+                    jueves: '',
+                    viernes: ''
+                };
+            }
+            
+            // Procesar días (verificar que dias_semana exista)
+            if (item.dias_semana) {
+                const dias = item.dias_semana.split(',').map(d => d.trim());
+                const hora = item.hora_clase || `${item.hora_inicio}-${item.hora_fin}`;
+                
+                dias.forEach(dia => {
+                    const diaNormalizado = dia.toLowerCase();
+                    
+                    if (diaNormalizado.includes('lunes')) {
+                        materiasAgrupadas[clave].lunes = hora;
+                    } else if (diaNormalizado.includes('martes')) {
+                        materiasAgrupadas[clave].martes = hora;
+                    } else if (diaNormalizado.includes('miércoles') || diaNormalizado.includes('miercoles')) {
+                        materiasAgrupadas[clave].miercoles = hora;
+                    } else if (diaNormalizado.includes('jueves')) {
+                        materiasAgrupadas[clave].jueves = hora;
+                    } else if (diaNormalizado.includes('viernes')) {
+                        materiasAgrupadas[clave].viernes = hora;
+                    }
+                });
+            }
+        });
+        
+        return Object.values(materiasAgrupadas);
+    };
+
+    // Función para datos de ejemplo (respaldo)
+    const obtenerDatosEjemplo = () => {
+        return [
             {
                 id: 1,
-                semestre: "5",
+                semestre: "6",
                 materia: "Base de Datos Avanzada",
-                clave: "AED-1050",
+                clave: "39358",
                 profesor: "Dr. Carlos Méndez",
                 creditos: 5,
                 lunes: "7:00-8:50 A-101",
@@ -38,9 +166,9 @@ export default function Horarios() {
             },
             {
                 id: 2,
-                semestre: "5",
+                semestre: "6",
                 materia: "Desarrollo Web Avanzado",
-                clave: "SCD-1015",
+                clave: "39357",
                 profesor: "Mtra. Ana López",
                 creditos: 5,
                 lunes: "",
@@ -49,97 +177,11 @@ export default function Horarios() {
                 jueves: "9:00-10:50 Lab-1",
                 viernes: "9:00-10:50 Lab-1"
             },
-            {
-                id: 3,
-                semestre: "5",
-                materia: "Inteligencia Artificial",
-                clave: "AEB-1055",
-                profesor: "Dr. Roberto Sánchez",
-                creditos: 4,
-                lunes: "11:00-12:50 B-205",
-                martes: "",
-                miercoles: "11:00-12:50 B-205",
-                jueves: "",
-                viernes: ""
-            },
-            {
-                id: 4,
-                semestre: "5",
-                materia: "Redes de Computadoras",
-                clave: "SCD-1020",
-                profesor: "Ing. Laura Fernández",
-                creditos: 5,
-                lunes: "",
-                martes: "7:00-8:50 Lab-2",
-                miercoles: "",
-                jueves: "7:00-8:50 Lab-2",
-                viernes: "9:00-10:50 Lab-2"
-            },
-            {
-                id: 5,
-                semestre: "5",
-                materia: "Ingeniería de Software",
-                clave: "SCD-1008",
-                profesor: "C.P. Miguel Torres",
-                creditos: 4,
-                lunes: "13:00-14:50 C-301",
-                martes: "",
-                miercoles: "13:00-14:50 C-301",
-                jueves: "",
-                viernes: ""
-            },
-            {
-                id: 6,
-                semestre: "5",
-                materia: "Sistemas Operativos",
-                clave: "AED-1045",
-                profesor: "Dr. Jorge Ramírez",
-                creditos: 5,
-                lunes: "9:00-10:50 Lab-3",
-                martes: "",
-                miercoles: "9:00-10:50 Lab-3",
-                jueves: "",
-                viernes: "11:00-12:50 Lab-3"
-            },
-            {
-                id: 7,
-                semestre: "5",
-                materia: "Taller de Investigación I",
-                clave: "ACA-0909",
-                profesor: "Lic. Patricia Gómez",
-                creditos: 4,
-                lunes: "",
-                martes: "11:00-12:50 D-102",
-                miercoles: "",
-                jueves: "11:00-12:50 D-102",
-                viernes: ""
-            }
-        ]
+            // ... (mantén tus otros datos de ejemplo)
+        ];
     };
-
-    // Días de la semana para la tabla
-    const diasSemana = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
-
-    // Cargar datos iniciales
-    useEffect(() => {
-        // Simular carga de datos
-        setTimeout(() => {
-            const usuario = datosHorariosEjemplo.usuario;
-            const semestreUsuario = usuario.semestre.toString();
-            
-            // Solo cargar materias del semestre actual
-            const materiasSemestreActual = datosHorariosEjemplo.horarios.filter(
-                h => h.semestre === semestreUsuario
-            );
-            
-            setHorarios(materiasSemestreActual);
-            setSemestreActual(semestreUsuario);
-            setMateriasFiltradas(materiasSemestreActual);
-            setCargando(false);
-        }, 1000);
-    }, []);
-
-    // Filtrar materias por búsqueda
+    
+    // ⭐ Filtrado por búsqueda
     useEffect(() => {
         if (busqueda.trim() === '') {
             setMateriasFiltradas(horarios);
@@ -153,31 +195,38 @@ export default function Horarios() {
         }
     }, [busqueda, horarios]);
 
-    // Generar color único para cada materia
-    const generarColor = (id) => {
-        const colores = [
-            '#2e7d32', '#1565c0', '#6a1b9a', '#c62828', 
-            '#ef6c00', '#00838f', '#7b1fa2', '#2e7d32'
-        ];
-        return colores[id % colores.length];
-    };
-
     // Función para formatear el horario de un día
     const formatearHorarioDia = (horario) => {
         if (!horario || horario.trim() === '') {
             return <span className={styles.sinClase}>-</span>;
         }
-        
-        const [horas, aula] = horario.split(' ');
-        const [inicio, fin] = horas.split('-');
-        
+
+        const [horaInicio, horaFin] = horario.split('-').map(h => h.trim());
+
         return (
             <div className={styles.horarioDia}>
-                <span className={styles.hora}>{inicio} - {fin}</span>
-                <span className={styles.aula}>{aula}</span>
+                <span className={styles.hora}>{horaInicio} - {horaFin}</span>
             </div>
         );
     };
+
+    // ⭐ CONDICIONALES DE RENDERIZADO AL FINAL
+    if (authLoading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh'
+            }}>
+                <div>Cargando autenticación...</div>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return null;
+    }
 
     // Calcular estadísticas
     const totalCreditos = materiasFiltradas.reduce((sum, materia) => sum + materia.creditos, 0);
@@ -191,49 +240,72 @@ export default function Horarios() {
                     <div className={styles.usuarioInfo}>
                         <div className={styles.usuarioHeader}>
                             <i className="fas fa-user-graduate"></i>
-                            <h2>Horario del {semestreActual}° Semestre</h2>
+                             <h2>
+                                {semestreActual 
+                                    ? `Horario del ${semestreActual}° Semestre`
+                                    : 'Horario Académico'
+                                }
+                            </h2>
                         </div>
-                        <div className={styles.usuarioDetails}>
-                            <div className={styles.usuarioItem}>
-                                <span className={styles.label}>Estudiante:</span>
-                                <span className={styles.value}>{datosHorariosEjemplo.usuario.nombre}</span>
+                       {user && (
+                            <div className={styles.usuarioDetails}>
+                                <div className={styles.usuarioItem}>
+                                    <span className={styles.label}>Estudiante:</span>
+                                    <span className={styles.value}>
+                                        {user.nombreCompleto || `${user.nombre} ${user.apellido}`}
+                                    </span>
+                                </div>
+                                <div className={styles.usuarioItem}>
+                                    <span className={styles.label}>Matrícula:</span>
+                                    <span className={styles.value}>{user.id}</span>
+                                </div>
+                                {user.Carrera && (
+                                    <div className={styles.usuarioItem}>
+                                        <span className={styles.label}>Carrera:</span>
+                                        <span className={styles.value}>{user.Carrera}</span>
+                                    </div>
+                                )}
                             </div>
-                            <div className={styles.usuarioItem}>
-                                <span className={styles.label}>Matrícula:</span>
-                                <span className={styles.value}>{datosHorariosEjemplo.usuario.matricula}</span>
-                            </div>
-                            <div className={styles.usuarioItem}>
-                                <span className={styles.label}>Carrera:</span>
-                                <span className={styles.value}>{datosHorariosEjemplo.usuario.carrera}</span>
-                            </div>
-                        </div>
+                        )}
                     </div>
+                    
                     
                     {/* Estadísticas rápidas */}
                     <div className={styles.estadisticasHeader}>
                         <div className={styles.estadisticaItem}>
                             <i className="fas fa-book"></i>
                             <div>
-                                <span className={styles.estadisticaNumero}>{totalMaterias}</span>
+                                <span className={styles.estadisticaNumero}>
+                                    {totalMaterias}</span>
                                 <span className={styles.estadisticaLabel}>Materias</span>
                             </div>
                         </div>
                         <div className={styles.estadisticaItem}>
                             <i className="fas fa-star"></i>
                             <div>
-                                <span className={styles.estadisticaNumero}>{totalCreditos}</span>
+                                <span className={styles.estadisticaNumero}>
+                                    {totalCreditos}
+                                </span>
                                 <span className={styles.estadisticaLabel}>Créditos</span>
                             </div>
                         </div>
                         <div className={styles.estadisticaItem}>
                             <i className="fas fa-calendar-alt"></i>
                             <div>
-                                <span className={styles.estadisticaNumero}>{semestreActual}°</span>
+                                <span className={styles.estadisticaNumero}>
+                                    {semestreActual || '-'}°</span>
                                 <span className={styles.estadisticaLabel}>Semestre</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {error && (
+                    <div className={styles.errorAlert}>
+                        <i className="fas fa-exclamation-triangle"></i>
+                        {error}
+                    </div>
+                )}
 
                 {/* Búsqueda */}
                 <div className={styles.busquedaContainer}>
@@ -400,7 +472,6 @@ export default function Horarios() {
                     <button 
                         className={styles.btnDescargar}
                         onClick={() => {
-                            // En una app real, aquí se generaría un PDF
                             alert('Funcionalidad de descarga activada');
                         }}
                     >
@@ -412,7 +483,7 @@ export default function Horarios() {
                 {/* Botón flotante para volver */}
                 <button 
                     className={styles.btnFlotante}
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/inicio')}
                     aria-label="Volver al inicio"
                 >
                     <i className="fas fa-arrow-left"></i>
@@ -453,7 +524,7 @@ export default function Horarios() {
                                 © 2025 TecNM León. Sistema de Horarios Académicos.
                             </p>
                             <p className={styles.infoAdicional}>
-                                Horario del {semestreActual}° Semestre - {datosHorariosEjemplo.usuario.carrera}
+                                Horario del {semestreActual}° Semestre 
                             </p>
                         </div>
                     </div>
