@@ -14,26 +14,32 @@ import Solicitudes from './pages/residencias/solicitudes.jsx';
 import Horarios from './pages/horario-materias/horario-materias.jsx';
 import Reportes from './pages/reportes/reportes.jsx';
 import Examenes from './pages/examen-psicometricos/examen-psicometrico.jsx';
-//import TestConexion from './TestSupabase.jsx'; --prueba de conexion
+
+// Importa el AuthProvider
+import { AuthProvider } from './context/authContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-      <BrowserRouter>
-          <Routes>
-              <Route path="/" element={<InicioSesion />} />
-              <Route path="/inicio" element={<Inicio />} />
-              <Route path="/tecnoblog" element={<TecnoBlog />} />
-              <Route path="/tutorias" element={<Tutorias />} />
-              <Route path="/calendario" element={<Calendario />} />
-              <Route path="/docentes" element={<Docentes/>} />
-              <Route path="/planes-estudio" element={<PlanesEstudio />} />
-              <Route path="/residencias" element={<Residencias />} />
-              <Route path="/solicitudes" element={<Solicitudes />} />
-              <Route path="/temarios-materias" element={<Horarios />} />
-              <Route path="/reportes" element={<Reportes />} />
-              <Route path="/examenes-psicometricos" element={<Examenes />} />
-              <Route path="/test-db" element={<TestConexion />} />
-          </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Ruta pública */}
+          <Route path="/" element={<InicioSesion />} />
+          
+          {/* Rutas protegidas - SIN PrivateRoute */}
+          <Route path="/inicio" element={<Inicio />} />
+          <Route path="/tecnoblog" element={<TecnoBlog />} />
+          <Route path="/tutorias" element={<Tutorias />} />
+          <Route path="/calendario" element={<Calendario />} />
+          <Route path="/docentes" element={<Docentes />} />
+          <Route path="/planes-estudio" element={<PlanesEstudio />} />
+          <Route path="/residencias" element={<Residencias />} />
+          <Route path="/solicitudes" element={<Solicitudes />} />
+          <Route path="/temarios-materias" element={<Horarios />} />
+          <Route path="/reportes" element={<Reportes />} />
+          <Route path="/examenes-psicometricos" element={<Examenes />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   </StrictMode>
 )
