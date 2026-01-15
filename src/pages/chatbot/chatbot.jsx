@@ -84,9 +84,7 @@ export default function Chatbot() {
                         <input type="textfield" placeholder="Escribe tu pregunta"
                                id={textBoxId} value={message} onChange={e => setMessage(e.target.value)}
                                className={styles.input}/>
-                        <button disabled={!ready} onClick={handleAsk} className={styles.send}>
-                            →
-                        </button>
+                        <button disabled={!ready} onClick={handleAsk} className={styles.send}>→</button>
                     </div>
                 </div>
             </div>
