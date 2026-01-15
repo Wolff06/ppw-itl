@@ -1,6 +1,7 @@
 import styles from "./Inicio.module.css";
 import { useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/authContext'; // Importar el contexto de autenticación
 import logo from '../../assets/logos/LogoTecNM.png';
 import leonbotImg from '../../assets/icons/leonbot.png'; 
 import usuarioIcon from '../../assets/profesores/usuario_icon.png'; 
@@ -9,18 +10,14 @@ import universitariosBg from '../../assets/backgrounds/universitarios.jpg';
 export default function Inicio() {
     const navigate = useNavigate();
     const [mostrarCerrarSesion, setMostrarCerrarSesion] = useState(false);
+    const { user, logout, isAuthenticated } = useAuth(); // Obtener funciones del contexto
     
     const handleLogout = () => {
-        // Aquí iría la lógica real de logout
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
-        sessionStorage.removeItem('authToken');
-        sessionStorage.removeItem('userData');
+        // Llamar a la función de logout del contexto
+        logout();
         
-        // 2. Limpiar cookies (si las usas)
-        document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        // redirigimos al login
-        //navigate("/login");
+        // Redirigir a la página de inicio (autenticación)
+        navigate("/");
     };
     
     const toggleCerrarSesion = (e) => {
@@ -45,22 +42,14 @@ export default function Inicio() {
             document.removeEventListener('click', handleClickOutside);
         };
     }, [mostrarCerrarSesion]);
-        // Verificar autenticación al cargar (opcional - para seguridad adicional)
-        useEffect(() => {
-        const verificarAutenticacion = () => {
-            const token = localStorage.getItem('authToken') || 
-                         sessionStorage.getItem('authToken') ||
-                         document.cookie.includes('authToken');
-            
-            // Si no hay token, redirigir al login
-            if (!token) {
-                //navigate("/login");
-            }
-        };
-        
-        verificarAutenticacion();
-    }, [navigate]);
     
+    // Verificar autenticación al cargar
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigate("/");
+        }
+    }, [isAuthenticated, navigate]);
+
     // Función para redirigir a enlaces externos
     const redirectToExternal = (url) => {
         window.open(url, '_blank');
@@ -91,20 +80,30 @@ export default function Inicio() {
                 
                 {/* Contenedor de usuario - SIEMPRE con ícono (porque estamos en inicio) */}
                 <div className={styles.userContainer}>
-                    <img 
-                        src={usuarioIcon} 
-                        alt="icono_user" 
-                        className={styles.iconoUsuario}
-                        onClick={toggleCerrarSesion}
-                    />
+                    <div className={styles.userInfo} onClick={toggleCerrarSesion}>
+                        <img 
+                            src={usuarioIcon} 
+                            alt="icono_user" 
+                            className={styles.iconoUsuario}
+                        />
+                        {user && (
+                            <span className={styles.userName}>
+                                {user.nombre || user.nombreCompleto || 'Usuario'}
+                            </span>
+                        )}
+                    </div>
                     {mostrarCerrarSesion && (
                         <div 
                             className={styles.cierreSesion}
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <Link to="#" onClick={handleLogout}>
-                                Cerrar sesión <i className="fas fa-sign-out-alt"></i>
-                            </Link>
+                            <button 
+                                className={styles.logoutButton}
+                                onClick={handleLogout}
+                            >
+                                <i className="fas fa-sign-out-alt"></i>
+                                Cerrar sesión
+                            </button>
                         </div>
                     )}
                 </div>
