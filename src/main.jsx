@@ -17,6 +17,7 @@ import Examenes from './pages/examen-psicometricos/examen-psicometrico.jsx';
 
 // Importa el AuthProvider
 import { AuthProvider } from './context/authContext';
+import Chatbot from "./pages/chatbot/chatbot.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -38,6 +39,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/temarios-materias" element={<Horarios />} />
           <Route path="/reportes" element={<Reportes />} />
           <Route path="/examenes-psicometricos" element={<Examenes />} />
+            <Route path="/chatbot" element={<Chatbot />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

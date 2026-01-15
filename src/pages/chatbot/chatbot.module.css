@@ -1,0 +1,114 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--color-primary);
+}
+
+.chatBox{
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+    background-color: white;
+    height: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.chatHistory{
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    gap: 10px;
+    flex-grow: 1;
+    overflow: scroll;
+}
+
+.chatHistory .box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.box .item{
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-end;
+}
+
+.box .greet{
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+}
+
+.box .item:nth-child(even){
+    align-self: flex-start;
+}
+
+.chatHistory .question{
+
+    text-align: right;
+    margin: 0;
+    padding: 5px;
+    background-color: lightgray;
+    align-self: flex-end;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.box img{
+    width: 32px;
+    border-radius: 100%;
+}
+
+.chatHistory .answer{
+    text-align: left;
+    margin: 0;
+    padding: 5px;
+    align-self: flex-start;
+    border: 1px solid var(--color-primary);
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.controls{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 30px;
+}
+
+.input{
+    border: 1px solid var(--color-primary);
+    border-radius: 10px;
+    font-size: 1rem;
+    padding: 5px;
+    width: 100%;
+}
+
+.send {
+    background-color: var(--color-primary);
+    font-size: 1.5rem;
+    border-radius: 100%;
+    padding: 5px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    &:hover{
+        background-color: var(--color-primary-light);
+    }
+    &:active{
+        background-color: var(--color-primary);
+    }
+}
