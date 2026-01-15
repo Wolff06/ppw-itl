@@ -39,6 +39,7 @@ export default function Login() {
 
         try {
             // Simular llamada a API de autenticación
+
             await handleLogin(formData.id_usuario, formData.contrasenia).then((data)=>{
                 console.log(data.user);
                 // Redirigir al inicio

@@ -169,7 +169,7 @@ export default function Inicio() {
                         <li><Link to="/tecnoblog">Foro</Link></li>
                         <li><Link to="/tutorias">Grupos de Tutorías</Link></li>
                         <li><Link to="/calendario">Calendario Escolar</Link></li>
-                        <li><Link to="/temarios-materias">Temario de Materias</Link></li>
+                        <li><Link to="/planes-estudio">Temario de Materias</Link></li>
                     </ul>
                 </div>
 

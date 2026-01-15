@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import styles from "./calendario.module.css";
-import download from "/src/assets/icons/download.svg";
-
 
 
 // Importar todas las imágenes

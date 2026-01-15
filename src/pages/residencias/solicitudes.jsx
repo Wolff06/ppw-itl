@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import styles from './solicitudes.module.css';
+import {supabase} from "../../assets/scripts/serverless/supabaseClient.js";
 
 export default function Solicitudes() {
     const navigate = useNavigate();
@@ -16,35 +17,8 @@ export default function Solicitudes() {
 
     // Estado de la solicitud aceptada (si existe)
     const [solicitudAceptada, setSolicitudAceptada] = useState(null);
-    
-    // Simular carga de solicitudes desde "base de datos"
-    useEffect(() => {
-        cargarSolicitudesDesdeBD();
-        
-        // Simular actualizaciones periódicas (como si vinieran de la base de datos)
-        const intervalo = setInterval(() => {
-            cargarSolicitudesDesdeBD();
-        }, 30000); // Cada 30 segundos verifica actualizaciones
-        
-        return () => clearInterval(intervalo);
-    }, []);
 
-    const cargarSolicitudesDesdeBD = () => {
-        try {
-            // Primero intentar cargar de localStorage (simulación de BD)
-            const solicitudesBD = JSON.parse(localStorage.getItem('solicitudesUsuarioBD') || '[]');
-            
-            if (solicitudesBD.length > 0) {
-                procesarSolicitudes(solicitudesBD);
-            } else {
-                // Si no hay en "BD", usar datos iniciales de ejemplo
-                cargarDatosIniciales();
-            }
-        } catch (error) {
-            console.error("Error cargando solicitudes:", error);
-            cargarDatosIniciales();
-        }
-    };
+    const [userID, setUserID] = useState(-1);
 
     const cargarDatosIniciales = () => {
         // Datos iniciales - simulan lo que vendría de la base de datos
@@ -88,7 +62,7 @@ export default function Solicitudes() {
                 puedeCancelar: true
             }
         ];
-        
+
         // Guardar en "BD" (localStorage)
         localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(datosIniciales));
         procesarSolicitudes(datosIniciales);
@@ -96,22 +70,22 @@ export default function Solicitudes() {
 
     const procesarSolicitudes = (solicitudesData) => {
         setSolicitudes(solicitudesData);
-        
+
         // Encontrar solicitud aceptada (si existe)
         const aceptada = solicitudesData.find(s => s.estado === "Aceptado");
         setSolicitudAceptada(aceptada || null);
-        
+
         // Calcular estadísticas
         const aceptadas = solicitudesData.filter(s => s.estado === "Aceptado").length;
         const pendientes = solicitudesData.filter(s => s.estado === "Pendiente").length;
         const rechazadas = solicitudesData.filter(s => s.estado === "Rechazado").length;
-        
+
         setEstadisticas({ aceptadas, pendientes, rechazadas });
-        
-        // Actualizar estado en residencias si hay una aceptada
+
+        /*// Actualizar estado en residencias si hay una aceptada
         if (aceptada) {
             localStorage.setItem('estadoResidenciaUsuario', 'aceptada');
-        }
+        }*/
     };
 
     // Función para formatear fecha
@@ -138,6 +112,58 @@ export default function Solicitudes() {
                 return styles.estadoPendiente;
         }
     };
+
+    const cargarSolicitudesDesdeBD = () => {
+        try {
+            // Primero intentar cargar de localStorage (simulación de BD)
+            const solicitudesBD = JSON.parse(localStorage.getItem('solicitudesUsuarioBD') || '[]');
+
+            if (solicitudesBD.length > 0) {
+                procesarSolicitudes(solicitudesBD);
+            } else {
+                // Si no hay en "BD", usar datos iniciales de ejemplo
+                cargarDatosIniciales();
+            }
+        } catch (error) {
+            console.error("Error cargando solicitudes:", error);
+            cargarDatosIniciales();
+        }
+    };
+
+    // Simular carga de solicitudes desde "base de datos"
+    useEffect(() => {
+
+        const setUser = async () =>{
+            const {data: id, error: authErr} = await supabase.rpc('get_user_set').single();
+            if(!authErr){
+                setUserID(id.id_usuario);
+            }
+        }
+
+        const cargarSolicitudes = async () => {
+            const {data, error} = await supabase
+                .from("residencia")
+                .select("*")
+                .eq("id_alumno",userID);
+            if(!error){
+                if(data.length>0){
+                    procesarSolicitudes(data);
+                }
+            }
+        }
+        
+        /*// Simular actualizaciones periódicas (como si vinieran de la base de datos)
+        const intervalo = setInterval(() => {
+            cargarSolicitudesDesdeBD();
+        }, 30000); // Cada 30 segundos verifica actualizaciones
+        
+        return () => clearInterval(intervalo);*/
+
+        setUser().catch(console.error);
+        if(userID===-1){ return; }
+        cargarSolicitudes().catch(console.error);
+
+    }, [userID]);
 
     // ================== FUNCIONES DE NOTIFICACIÓN ==================
 
@@ -244,7 +270,9 @@ export default function Solicitudes() {
 
     // Función para simular que el administrador ha actualizado el estado
     // (En realidad esto sería una notificación push desde el servidor)
-    const simularActualizacionAdministrador = () => {
+    const simularActualizacionAdministrador = async () => {
+        if(solicitudAceptada) return;
+
         const actualizacionesPosibles = [
             {
                 id: 1,
@@ -268,47 +296,67 @@ export default function Solicitudes() {
         const actualizacion = actualizacionesPosibles[Math.floor(Math.random() * actualizacionesPosibles.length)];
         
         if (actualizacion.id && actualizacion.nuevoEstado) {
-            const nuevasSolicitudes = solicitudes.map(s => {
-                if (s.id === actualizacion.id) {
-                    const actualizada = {
-                        ...s,
-                        estado: actualizacion.nuevoEstado,
-                        fecha_respuesta: new Date().toISOString().split('T')[0],
-                        motivo_rechazo: actualizacion.motivo || null,
-                        puedeCancelar: false // Ya no se puede cancelar
-                    };
-                    
-                    // Mostrar notificación de la actualización
-                    if (actualizacion.nuevoEstado === "Aceptado") {
-                        mostrarExito("Residencia Aceptada", actualizacion.mensaje);
-                        // Si es aceptada, rechazar automáticamente las demás
-                        return actualizada;
-                    } else {
-                        mostrarAdvertencia("Residencia Rechazada", actualizacion.mensaje);
-                        return actualizada;
+            // get random solicitud
+            const randomS = solicitudes[Math.floor(Math.random() * solicitudes.length)];
+            console.log(randomS.id_residencia);
+            // apply new state
+            // Mostrar notificación de la actualización
+            let found = false;
+            if (actualizacion.nuevoEstado === "Aceptado") {
+                mostrarExito("Residencia Aceptada", actualizacion.mensaje);
+                setSolicitudes(prev=>prev.map(item=>
+                    {
+                        if(item.id_residencia===randomS.id_residencia){
+                            item.estado = "Aceptado";
+                            console.log(item);
+                            return item;
+                        }
+                        return item;
                     }
+                ));
+                // Si es aceptada, rechazar automáticamente las demás
+                found = true;
+            } else {
+                mostrarAdvertencia("Residencia Rechazada", actualizacion.mensaje);
+                setSolicitudes(prev=>prev.map(item=>
+                    {
+                        if(item.id_residencia===randomS.id_residencia){
+                            item.estado = "Rechazado";
+                            console.log(item);
+                            return item;
+                        }
+                        return item;
+                    }
+                ));
+            }
+            console.log("prev: ",solicitudes);
+            const nuevasSolicitudes = solicitudes.map(s => {
+                if(s.estado !== "Pendiente" || s.id_residencia === randomS.id_residencia) {
+                    return s;
                 }
                 
                 // Si se aceptó una, rechazar automáticamente las demás pendientes
-                if (actualizacion.nuevoEstado === "Aceptado" && s.estado === "Pendiente") {
-                    return {
-                        ...s,
-                        estado: "Rechazado",
-                        fecha_respuesta: new Date().toISOString().split('T')[0],
-                        motivo_rechazo: "Otra residencia fue aceptada",
-                        puedeCancelar: false
-                    };
+                if (found) {
+                    s.estado = "Rechazado";
                 }
                 
                 return s;
             });
             
             // Guardar en "BD"
-            localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(nuevasSolicitudes));
-            procesarSolicitudes(nuevasSolicitudes);
-            
+            //localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(nuevasSolicitudes));
+            //procesarSolicitudes(nuevasSolicitudes);
+            console.log(nuevasSolicitudes);
+            const {error} = await supabase.from("residencia").upsert(nuevasSolicitudes,{
+                onConflict: 'id_residencia'
+            }).select();
+            if(error){
+               mostrarError("Error","Error desconocido");
+               return;
+            }
             // Disparar evento para que residencias.jsx se actualice
-            window.dispatchEvent(new Event('storage'));
+            //window.dispatchEvent(new Event('storage'));
+            window.location.reload();
         }
     };
 
@@ -350,7 +398,7 @@ export default function Solicitudes() {
                     <button 
                         onClick={() => {
                             toast.dismiss();
-                            procesarCancelacion(idSolicitud, solicitud);
+                            procesarCancelacion(idSolicitud, solicitud).catch(console.error);
                         }}
                         style={{
                             background: '#d32f2f',
@@ -411,21 +459,31 @@ export default function Solicitudes() {
         );
     };
 
-    const procesarCancelacion = (idSolicitud, solicitud) => {
-        // Eliminar la solicitud de la lista
+    const procesarCancelacion = async (idSolicitud, solicitud) => {
+        if(userID===-1) return;
+
+        /*// Eliminar la solicitud de la lista
         const nuevasSolicitudes = solicitudes.filter(s => s.id !== idSolicitud);
-        
+        // todo
         // Guardar en "BD"
         localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(nuevasSolicitudes));
-        procesarSolicitudes(nuevasSolicitudes);
-        
-        // Mostrar notificación
-        mostrarExito(
-            "Solicitud Cancelada",
-            `Has cancelado la solicitud para: "${solicitud.titulo}". ` +
-            `El administrador ha sido notificado.`
-        );
-        
+        procesarSolicitudes(nuevasSolicitudes);*/
+
+        const { error: err} = await supabase
+            .from("residencias")
+            .delete()
+            .eq("id_residencia",idSolicitud);
+        if(!err){
+            // Mostrar notificación
+            mostrarExito(
+                "Solicitud Cancelada",
+                `Has cancelado la solicitud para: "${solicitud.titulo}". ` +
+                `El administrador ha sido notificado.`
+            );
+        }else{
+            mostrarError("Error","No se pudo cancelar la solicitud.");
+        }
+
         // En una app real, aquí se enviaría una notificación al administrador
         console.log(`Notificación al admin: Solicitud ${idSolicitud} cancelada por el usuario`);
     };
@@ -439,7 +497,7 @@ export default function Solicitudes() {
         );
         
         setTimeout(() => {
-            simularActualizacionAdministrador();
+            simularActualizacionAdministrador().catch(console.error);
         }, 1500);
     };
 

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './docentes.module.css';
 import logoFondo from '../../assets/backgrounds/LogoTecNMVertical_Blanco-150x150(1).png';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
@@ -12,7 +11,6 @@ import patriciaImg from '../../assets/profesores/Patricia Maria.jpeg';
 import carlosImg from '../../assets/profesores/usuario_icon.png';
 
 export default function Docentes() {
-    const navigate = useNavigate();
     const [profesorActivo, setProfesorActivo] = useState(0);
     const [likes, setLikes] = useState({});
     const [dislikes, setDislikes] = useState({});

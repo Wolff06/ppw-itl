@@ -7,6 +7,106 @@ import styles from './residencias.module.css';
 
 // Importar ícono de campana
 import campanaIcon from '../../assets/icons/campana.png';
+import {supabase} from "../../assets/scripts/serverless/supabaseClient.js";
+
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+// Datos de ejemplo - Más residencias para probar
+const datosResidenciasEjemplo = [
+    {
+        id:getRandomInt(1,1000),
+        titulo: "Desarrollador Full Stack",
+        empresa: "Tech Solutions S.A. de C.V.",
+        descripcion: "Desarrollo de aplicaciones web y móviles utilizando tecnologías modernas como React, Node.js y MongoDB. Participarás en proyectos reales con clientes internacionales.",
+        requisitos: "Conocimiento en JavaScript, HTML, CSS, Git. Estudiante de últimos semestres de Ingeniería en Sistemas. Inglés intermedio.",
+        responsable: {
+            titulo: "Ing.",
+            nombre: "Ana",
+            apellido: "Martínez López"
+        },
+        contacto: "ana.martinez@techsolutions.com - Tel: 477 123 4567",
+        fecha_ini: "2025-02-01",
+        fecha_fin: "2025-07-31",
+        vacantes: 3,
+        disponible: true,
+        area: "Desarrollo Web"
+    },
+    {
+        id: getRandomInt(1,1000),
+        titulo: "Analista de Datos",
+        empresa: "Data Analytics Corp",
+        descripcion: "Análisis de grandes volúmenes de datos para la toma de decisiones empresariales. Crearás dashboards y reportes para diferentes departamentos.",
+        requisitos: "Conocimientos en SQL, Python, Excel avanzado. Estadística básica. Power BI o Tableau.",
+        responsable: {
+            titulo: "Ing.",
+            nombre: "Carlos",
+            apellido: "Rodríguez"
+        },
+        contacto: "carlos.rodriguez@dataanalytics.com - Tel: 477 987 6543",
+        fecha_ini: "2025-01-15",
+        fecha_fin: "2025-06-30",
+        vacantes: 2,
+        disponible: true,
+        area: "Data Science"
+    },
+    {
+        id: getRandomInt(1,1000),
+        titulo: "Soporte Técnico Especializado",
+        empresa: "IT Support Services",
+        descripcion: "Brindar soporte técnico a clientes corporativos y resolver incidencias de software y hardware. Trabajarás con tecnología de punta.",
+        requisitos: "Conocimientos en redes, sistemas operativos (Windows/Linux), hardware. Certificaciones son una ventaja.",
+        responsable: {
+            titulo: "Ing.",
+            nombre: "Roberto",
+            apellido: "Sánchez"
+        },
+        contacto: "roberto.sanchez@itsupport.com - Tel: 477 555 1234",
+        fecha_ini: "2025-03-01",
+        fecha_fin: "2025-08-31",
+        vacantes: 5,
+        disponible: true,
+        area: "Soporte IT"
+    },
+    {
+        id: getRandomInt(1,1000),
+        titulo: "Diseñador UI/UX",
+        empresa: "Creative Digital Solutions",
+        descripcion: "Diseño de interfaces y experiencias de usuario para aplicaciones web y móviles. Colaborarás con equipos de desarrollo.",
+        requisitos: "Conocimiento en Figma, Adobe XD, principios de diseño. Portfolio requerido. Creatividad y atención al detalle.",
+        responsable: {
+            titulo: "Diseñadora",
+            nombre: "Laura",
+            apellido: "Fernández"
+        },
+        contacto: "laura.fernandez@creativedigital.com - Tel: 477 444 7890",
+        fecha_ini: "2025-03-15",
+        fecha_fin: "2025-08-15",
+        vacantes: 2,
+        disponible: true,
+        area: "Diseño"
+    },
+    {
+        id: getRandomInt(1,1000),
+        titulo: "Administrador de Bases de Datos",
+        empresa: "Database Experts S.A.",
+        descripcion: "Administración y optimización de bases de datos empresariales. Garantizarás la disponibilidad y seguridad de la información.",
+        requisitos: "MySQL, PostgreSQL, SQL Server. Conocimientos en optimización y backup. Experiencia en ambientes productivos.",
+        responsable: {
+            titulo: "Ing.",
+            nombre: "Miguel Ángel",
+            apellido: "Torres",
+        },
+        contacto: "miguel.torres@dbexperts.com - Tel: 477 333 2222",
+        fecha_ini: "2025-02-15",
+        fecha_fin: "2025-07-15",
+        vacantes: 1,
+        disponible: false,
+        area: "Bases de Datos"
+    }
+];
 
 export default function Residencias() {
     const navigate = useNavigate();
@@ -14,124 +114,79 @@ export default function Residencias() {
     const [notificaciones, setNotificaciones] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false);
-    
+    const [userID, setUserID] = useState(-1);
+
     // Estado del usuario: null = puede solicitar, 'aceptada' = tiene una aceptada
     const [estadoUsuario, setEstadoUsuario] = useState(null);
-    
-    // Datos de ejemplo - Más residencias para probar
-    const datosResidenciasEjemplo = [
-        {
-            id: 1,
-            titulo: "Desarrollador Full Stack",
-            empresa: "Tech Solutions S.A. de C.V.",
-            descripcion: "Desarrollo de aplicaciones web y móviles utilizando tecnologías modernas como React, Node.js y MongoDB. Participarás en proyectos reales con clientes internacionales.",
-            requisitos: "Conocimiento en JavaScript, HTML, CSS, Git. Estudiante de últimos semestres de Ingeniería en Sistemas. Inglés intermedio.",
-            responsable: "Ing. Ana Martínez López",
-            contacto: "ana.martinez@techsolutions.com - Tel: 477 123 4567",
-            fecha_ini: "2025-02-01",
-            fecha_fin: "2025-07-31",
-            vacantes: 3,
-            disponible: true,
-            area: "Desarrollo Web"
-        },
-        {
-            id: 2,
-            titulo: "Analista de Datos",
-            empresa: "Data Analytics Corp",
-            descripcion: "Análisis de grandes volúmenes de datos para la toma de decisiones empresariales. Crearás dashboards y reportes para diferentes departamentos.",
-            requisitos: "Conocimientos en SQL, Python, Excel avanzado. Estadística básica. Power BI o Tableau.",
-            responsable: "Lic. Carlos Rodríguez",
-            contacto: "carlos.rodriguez@dataanalytics.com - Tel: 477 987 6543",
-            fecha_ini: "2025-01-15",
-            fecha_fin: "2025-06-30",
-            vacantes: 2,
-            disponible: true,
-            area: "Data Science"
-        },
-        {
-            id: 3,
-            titulo: "Soporte Técnico Especializado",
-            empresa: "IT Support Services",
-            descripcion: "Brindar soporte técnico a clientes corporativos y resolver incidencias de software y hardware. Trabajarás con tecnología de punta.",
-            requisitos: "Conocimientos en redes, sistemas operativos (Windows/Linux), hardware. Certificaciones son una ventaja.",
-            responsable: "Ing. Roberto Sánchez",
-            contacto: "roberto.sanchez@itsupport.com - Tel: 477 555 1234",
-            fecha_ini: "2025-03-01",
-            fecha_fin: "2025-08-31",
-            vacantes: 5,
-            disponible: true,
-            area: "Soporte IT"
-        },
-        {
-            id: 4,
-            titulo: "Diseñador UI/UX",
-            empresa: "Creative Digital Solutions",
-            descripcion: "Diseño de interfaces y experiencias de usuario para aplicaciones web y móviles. Colaborarás con equipos de desarrollo.",
-            requisitos: "Conocimiento en Figma, Adobe XD, principios de diseño. Portfolio requerido. Creatividad y atención al detalle.",
-            responsable: "Diseñadora Laura Fernández",
-            contacto: "laura.fernandez@creativedigital.com - Tel: 477 444 7890",
-            fecha_ini: "2025-03-15",
-            fecha_fin: "2025-08-15",
-            vacantes: 2,
-            disponible: true,
-            area: "Diseño"
-        },
-        {
-            id: 5,
-            titulo: "Administrador de Bases de Datos",
-            empresa: "Database Experts S.A.",
-            descripcion: "Administración y optimización de bases de datos empresariales. Garantizarás la disponibilidad y seguridad de la información.",
-            requisitos: "MySQL, PostgreSQL, SQL Server. Conocimientos en optimización y backup. Experiencia en ambientes productivos.",
-            responsable: "Ing. Miguel Ángel Torres",
-            contacto: "miguel.torres@dbexperts.com - Tel: 477 333 2222",
-            fecha_ini: "2025-02-15",
-            fecha_fin: "2025-07-15",
-            vacantes: 1,
-            disponible: false,
-            area: "Bases de Datos"
-        }
-    ];
-
-    // Notificaciones de ejemplo
-    const notificacionesEjemplo = [
-        {
-            id: 1,
-            fecha_env: "2025-01-10",
-            mensaje: "Tu solicitud para Desarrollador Full Stack ha sido recibida."
-        },
-        {
-            id: 2,
-            fecha_env: "2025-01-09",
-            mensaje: "Nuevas residencias disponibles en el área de Data Science."
-        },
-        {
-            id: 3,
-            fecha_env: "2025-01-08",
-            mensaje: "Recuerda completar tu perfil para aumentar tus oportunidades."
-        }
-    ];
 
     // Cargar datos iniciales
     useEffect(() => {
+
+        const setUser = async () =>{
+            const {data: id, error: authErr} = await supabase.rpc('get_user_set').single();
+            if(!authErr){
+                setUserID(id.id_usuario);
+            }
+        }
+
         // Cargar residencias
         setResidencias(datosResidenciasEjemplo);
-        setNotificaciones(notificacionesEjemplo);
-        
+
+        const verificarNotificaciones = async () => {
+
+            if (userID !== -1) {
+                const {data, error} = await supabase
+                    .from('notificacion')
+                    .select('*')
+                    .eq('id_usuario',userID);
+                if(!error){
+                    setNotificaciones(data);
+                }
+            }
+        }
+
+        const channel = supabase
+            .channel(`user-${userID}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'notificacion',
+                    filter: `id_usuario=eq.${userID}`
+                },
+                (payload) => {
+                    setNotificaciones(payload);
+                }
+            )
+            .subscribe();
+
         // Verificar si el usuario ya tiene una residencia aceptada
         // En una app real, esto vendría de una API
-        const verificarEstadoUsuario = () => {
-            // Obtener del localStorage o API
-            const estadoGuardado = localStorage.getItem('estadoResidenciaUsuario');
-            
-            if (estadoGuardado === 'aceptada') {
-                setEstadoUsuario('aceptada');
-            } else {
-                setEstadoUsuario(null);
+        const verificarEstadoUsuario = async () => {
+
+            if(userID !== -1){
+                // check if user has residencia by querying the DB
+                const { data, error } = await supabase
+                    .from('residencia')
+                    .select('estado')
+                    .eq('id_alumno',userID).maybeSingle();
+
+                if(!error){
+                    setEstadoUsuario(data);
+                }
             }
         };
-        
-        verificarEstadoUsuario();
-    }, []);
+
+        setUser().catch(console.error);
+        if(userID===-1) return;
+        verificarNotificaciones().catch(console.error);
+        verificarEstadoUsuario().catch(console.error);
+
+        return () => {
+            supabase.removeChannel(channel).catch(console.error);
+        };
+    }, [userID,notificaciones]);
 
     // Determinar si el usuario puede solicitar
     const puedeSolicitar = estadoUsuario === null;
@@ -396,12 +451,13 @@ export default function Residencias() {
         );
     };
 
+    // todo
     // Función para procesar la solicitud después de confirmar
     const procesarSolicitudResidencia = async (idResidencia, residencia) => {
         try {
-            // 1. Guardar la solicitud en localStorage (simulación de API)
+            /*// 1. Guardar la solicitud en localStorage (simulación de API)
             const solicitudNueva = {
-                id: Date.now(),
+                id: new Date(),
                 id_residencia: idResidencia,
                 titulo: residencia.titulo,
                 empresa: residencia.empresa,
@@ -420,115 +476,167 @@ export default function Residencias() {
             // Guardar en localStorage (simulación de base de datos)
             const solicitudesExistentes = JSON.parse(localStorage.getItem('solicitudesUsuario') || '[]');
             solicitudesExistentes.push(solicitudNueva);
-            localStorage.setItem('solicitudesUsuario', JSON.stringify(solicitudesExistentes));
+            localStorage.setItem('solicitudesUsuario', JSON.stringify(solicitudesExistentes));*/
 
-            // 2. Remover la residencia de la lista de disponibles
-            setResidencias(prev => prev.filter(r => r.id !== idResidencia));
-            
-            // 3. Agregar notificación interna
+            // is asesor in table?
+            let canInsert = false;
+            const {data: asesorData} = await supabase
+                .from("asesor")
+                .select("*")
+                .eq("nombre",residencia.responsable.nombre)
+                .eq("apellido",residencia.responsable.apellido)
+                .maybeSingle();
+            if(!asesorData){
+                // add new asesor
+                const {error: newAsesorErr } = await supabase.from('asesor').insert([{
+                    nombre: residencia.responsable.nombre,
+                    apellido: residencia.responsable.apellido,
+                    contacto: residencia.contacto
+                }]);
+                if(!newAsesorErr){
+                    canInsert = true;
+                }
+            }else{
+                canInsert = true;
+            }
+
+
+            if(canInsert){
+                // make insert into DB
+                const { error} = await supabase.from("residencia").insert(
+                    [{
+                        id_residencia: idResidencia,
+                        id_alumno: userID,
+                        id_asesor: asesorData.id_asesor,
+                        empresa: residencia.empresa,
+                        descripcion: residencia.descripcion,
+                        vacantes: residencia.vacantes,
+                        fecha_inicio: residencia.fecha_ini,
+                        fecha_fin: residencia.fecha_fin,
+                        estado: "Pendiente"
+                    }]
+                );
+                if(!error){
+                    // 2. Remover la residencia de la lista de disponibles
+                    setResidencias(prev => prev.filter(r => r.id !== idResidencia));
+
+                    // 3.
+                    const { error: notifErr } = await supabase.from("notificacion").insert([{
+                        id_notificacion: notificaciones.length + 1,
+                        id_usuario: userID,
+                        mensaje: `Solicitaste la residencia: ${residencia.titulo} - ${residencia.empresa}`
+                    }]);
+                    if(!notifErr){
+                        // 4. Mostrar notificación de éxito
+                        mostrarExito(
+                            "¡Solicitud Enviada!",
+                            `Tu solicitud para "${residencia.titulo}" ha sido enviada exitosamente. ` +
+                            `Recibirás una respuesta por correo electrónico.`
+                        );
+                        // 5. Mostrar notificación para ver estado
+                        setTimeout(() => {
+                            toast.info(
+                                <div>
+                                    <h3 style={{ margin: '0 0 15px 0', color: '#003366' }}>
+                                        <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
+                                        Ver Estado de Solicitud - ITL
+                                    </h3>
+                                    <p style={{ margin: '0 0 12px 0', fontSize: '14px' }}>
+                                        ¿Deseas ver el estado de todas tus solicitudes?
+                                    </p>
+                                    <div style={{
+                                        display: 'flex',
+                                        gap: '10px'
+                                    }}>
+                                        <button
+                                            onClick={() => {
+                                                toast.dismiss();
+                                                navigate('/solicitudes');
+                                            }}
+                                            style={{
+                                                background: 'linear-gradient(135deg, #003366 0%, #004080 100%)',
+                                                color: 'white',
+                                                border: 'none',
+                                                padding: '10px 20px',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                flex: 1,
+                                                fontWeight: 'bold',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                fontSize: '14px',
+                                                transition: 'all 0.3s'
+                                            }}
+                                            onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                                            onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                                        >
+                                            <i className="fas fa-external-link-alt"></i>
+                                            Ir a Mis Solicitudes
+                                        </button>
+                                        <button
+                                            onClick={() => toast.dismiss()}
+                                            style={{
+                                                background: 'transparent',
+                                                color: '#003366',
+                                                border: '2px solid #003366',
+                                                padding: '10px 20px',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                flex: 1,
+                                                fontWeight: 'bold',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                fontSize: '14px',
+                                                transition: 'all 0.3s'
+                                            }}
+                                            onMouseOver={(e) => {
+                                                e.target.style.background = '#003366';
+                                                e.target.style.color = 'white';
+                                            }}
+                                            onMouseOut={(e) => {
+                                                e.target.style.background = 'transparent';
+                                                e.target.style.color = '#003366';
+                                            }}
+                                        >
+                                            <i className="fas fa-times"></i>
+                                            Más tarde
+                                        </button>
+                                    </div>
+                                </div>,
+                                {
+                                    position: "top-right",
+                                    autoClose: 10000,
+                                    closeOnClick: false,
+                                    style: {
+                                        background: '#f0f8ff',
+                                        borderLeft: '5px solid #003366',
+                                        color: '#333',
+                                        maxWidth: '450px',
+                                        borderRadius: '10px'
+                                    }
+                                }
+                            );
+                        }, 1500);
+                    }else{
+                        mostrarError("Error","No se pudo procesar la solicitud.");
+                    }
+                }else{
+                    console.log(error)
+                }
+            }
+
+            /*// 3. Agregar notificación interna
             const nuevaNotificacion = {
                 id: notificaciones.length + 1,
                 fecha_env: new Date().toISOString().split('T')[0],
                 mensaje: `Solicitaste la residencia: ${residencia.titulo} - ${residencia.empresa}`,
                 tipo: 'solicitud'
             };
-            setNotificaciones(prev => [nuevaNotificacion, ...prev]);
-            
-            // 4. Mostrar notificación de éxito
-            mostrarExito(
-                "¡Solicitud Enviada!",
-                `Tu solicitud para "${residencia.titulo}" ha sido enviada exitosamente. ` +
-                `Recibirás una respuesta por correo electrónico.`
-            );
-
-            // 5. Mostrar notificación para ver estado
-            setTimeout(() => {
-                toast.info(
-                    <div>
-                        <h3 style={{ margin: '0 0 15px 0', color: '#003366' }}>
-                            <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
-                            Ver Estado de Solicitud - ITL
-                        </h3>
-                        <p style={{ margin: '0 0 12px 0', fontSize: '14px' }}>
-                            ¿Deseas ver el estado de todas tus solicitudes?
-                        </p>
-                        <div style={{
-                            display: 'flex',
-                            gap: '10px'
-                        }}>
-                            <button 
-                                onClick={() => {
-                                    toast.dismiss();
-                                    navigate('/solicitudes');
-                                }}
-                                style={{
-                                    background: 'linear-gradient(135deg, #003366 0%, #004080 100%)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '10px 20px',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    flex: 1,
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px',
-                                    fontSize: '14px',
-                                    transition: 'all 0.3s'
-                                }}
-                                onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
-                                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-                            >
-                                <i className="fas fa-external-link-alt"></i>
-                                Ir a Mis Solicitudes
-                            </button>
-                            <button 
-                                onClick={() => toast.dismiss()}
-                                style={{
-                                    background: 'transparent',
-                                    color: '#003366',
-                                    border: '2px solid #003366',
-                                    padding: '10px 20px',
-                                    borderRadius: '6px',
-                                    cursor: 'pointer',
-                                    flex: 1,
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px',
-                                    fontSize: '14px',
-                                    transition: 'all 0.3s'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.target.style.background = '#003366';
-                                    e.target.style.color = 'white';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.target.style.background = 'transparent';
-                                    e.target.style.color = '#003366';
-                                }}
-                            >
-                                <i className="fas fa-times"></i>
-                                Más tarde
-                            </button>
-                        </div>
-                    </div>,
-                    {
-                        position: "top-right",
-                        autoClose: 10000,
-                        closeOnClick: false,
-                        style: {
-                            background: '#f0f8ff',
-                            borderLeft: '5px solid #003366',
-                            color: '#333',
-                            maxWidth: '450px',
-                            borderRadius: '10px'
-                        }
-                    }
-                );
-            }, 1500);
+            setNotificaciones(prev => [nuevaNotificacion, ...prev]);*/
 
         } catch (error) {
             mostrarError(
@@ -633,7 +741,8 @@ export default function Residencias() {
             
             <div className={styles.pageContainer}>
                 {/* Banner si hay residencia aceptada */}
-                <BannerResidenciaAceptada />
+
+                {BannerResidenciaAceptada()}
 
                 {/* Contenido principal */}
                 <main className={styles.contenido}>
@@ -692,7 +801,9 @@ export default function Residencias() {
                                                     <i className="fas fa-user-tie"></i>
                                                     RESPONSABLE:
                                                 </span>
-                                                <span className={styles.infoValue}>{residencia.responsable}</span>
+                                                <span className={styles.infoValue}>{residencia.responsable.titulo
+                                                    +" "+residencia.responsable.nombre
+                                                    +" "+residencia.responsable.apellido}</span>
                                             </div>
                                             <div className={styles.infoItem}>
                                                 <span className={styles.infoLabel}>
@@ -951,11 +1062,11 @@ export default function Residencias() {
                                     {notificaciones.length > 0 ? (
                                         <ul className={styles.listaNotificacion}>
                                             {notificaciones.map((noti) => (
-                                                <li key={noti.id} className={styles.notificacionItem}>
+                                                <li key={noti.id_notificacion} className={styles.notificacionItem}>
                                                     <div className={styles.notificacionItemContent}>
                                                         <div className={styles.notiFecha}>
                                                             <i className="fas fa-calendar"></i>
-                                                            {formatearFecha(noti.fecha_env)}
+                                                            {formatearFecha(noti.fecha_envio)}
                                                         </div>
                                                         <div className={styles.notiMensaje}>
                                                             <i className="fas fa-envelope"></i>

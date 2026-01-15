@@ -113,7 +113,7 @@ export default function ExamenPsicometrico() {
     // Cerrar modal
     const handleCloseModal = () => {
         setMostrarModal(false);
-        
+
         // Limpiar formulario excepto el nombre y email
         setFormData({
             nombre: usuario.nombre,
@@ -128,10 +128,10 @@ export default function ExamenPsicometrico() {
     const handleCancelar = () => {
         if (formData.telefono.trim() !== '' || formData.email.trim() !== '' || formData.mensaje.trim() !== '') {
             if (window.confirm('¿Está seguro de cancelar? Se perderán los datos ingresados.')) {
-                navigate('/');
+                navigate('/inicio');
             }
         } else {
-            navigate('/');
+            navigate('/inicio');
         }
     };
 
@@ -155,13 +155,14 @@ export default function ExamenPsicometrico() {
                     <form id="examForm" className={styles.formulario} onSubmit={handleSubmit}>
                         <fieldset className={styles.fieldset}>
                             <table className={styles.formTable}>
+                                <tbody>
                                 <tr className={styles.formRow}>
                                     <th className={styles.instructionsColumn}>
                                         <ul className={styles.instructionsList}>
                                             <li>Ingresa tu nombre completo:
                                                 <ul>
                                                     <li>(De esta forma podremos personalizar tu experiencia).</li>
-                                                </ul>                            
+                                                </ul>
                                             </li>
                                             <li>Introduce tu numero de telefono:
                                                 <ul>
@@ -191,7 +192,7 @@ export default function ExamenPsicometrico() {
                                                 placeholder="Nombre completo"
                                             />
                                         </div>
-                                        
+
                                         <div className={styles.inputGroup}>
                                             <input
                                                 type="tel"
@@ -209,7 +210,7 @@ export default function ExamenPsicometrico() {
                                                 </span>
                                             )}
                                         </div>
-                                        
+
                                         <div className={styles.inputGroup}>
                                             <input
                                                 type="email"
@@ -227,7 +228,7 @@ export default function ExamenPsicometrico() {
                                                 </span>
                                             )}
                                         </div>
-                                        
+
                                         <div className={styles.inputGroup}>
                                             <textarea
                                                 rows="5"
@@ -238,7 +239,7 @@ export default function ExamenPsicometrico() {
                                                 placeholder="Escribe tu mensaje aquí"
                                             />
                                         </div>
-                                        
+
                                         {/* Botones */}
                                         <div className={styles.formButtons}>
                                             <button
@@ -270,6 +271,7 @@ export default function ExamenPsicometrico() {
                                         </div>
                                     </th>
                                 </tr>
+                                </tbody>
                             </table>
                         </fieldset>
                     </form>
