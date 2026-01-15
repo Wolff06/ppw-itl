@@ -4,138 +4,168 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import styles from './residencias.module.css';
+import { useAuth } from '../../context/authContext';
+import { supabase } from '../../lib/supabase';
 
 // Importar ícono de campana
 import campanaIcon from '../../assets/icons/campana.png';
 
 export default function Residencias() {
     const navigate = useNavigate();
+    const { user, isAuthenticated } = useAuth();
+    
     const [residencias, setResidencias] = useState([]);
     const [notificaciones, setNotificaciones] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false);
+    const [cargando, setCargando] = useState(true);
     
-    // Estado del usuario: null = puede solicitar, 'aceptada' = tiene una aceptada
-    const [estadoUsuario, setEstadoUsuario] = useState(null);
+    // Estado del usuario
+    const [estadoUsuario, setEstadoUsuario] = useState({
+        puedeSolicitar: true,
+        tieneAceptada: false,
+        solicitudAceptada: null
+    });
     
-    // Datos de ejemplo - Más residencias para probar
-    const datosResidenciasEjemplo = [
-        {
-            id: 1,
-            titulo: "Desarrollador Full Stack",
-            empresa: "Tech Solutions S.A. de C.V.",
-            descripcion: "Desarrollo de aplicaciones web y móviles utilizando tecnologías modernas como React, Node.js y MongoDB. Participarás en proyectos reales con clientes internacionales.",
-            requisitos: "Conocimiento en JavaScript, HTML, CSS, Git. Estudiante de últimos semestres de Ingeniería en Sistemas. Inglés intermedio.",
-            responsable: "Ing. Ana Martínez López",
-            contacto: "ana.martinez@techsolutions.com - Tel: 477 123 4567",
-            fecha_ini: "2025-02-01",
-            fecha_fin: "2025-07-31",
-            vacantes: 3,
-            disponible: true,
-            area: "Desarrollo Web"
-        },
-        {
-            id: 2,
-            titulo: "Analista de Datos",
-            empresa: "Data Analytics Corp",
-            descripcion: "Análisis de grandes volúmenes de datos para la toma de decisiones empresariales. Crearás dashboards y reportes para diferentes departamentos.",
-            requisitos: "Conocimientos en SQL, Python, Excel avanzado. Estadística básica. Power BI o Tableau.",
-            responsable: "Lic. Carlos Rodríguez",
-            contacto: "carlos.rodriguez@dataanalytics.com - Tel: 477 987 6543",
-            fecha_ini: "2025-01-15",
-            fecha_fin: "2025-06-30",
-            vacantes: 2,
-            disponible: true,
-            area: "Data Science"
-        },
-        {
-            id: 3,
-            titulo: "Soporte Técnico Especializado",
-            empresa: "IT Support Services",
-            descripcion: "Brindar soporte técnico a clientes corporativos y resolver incidencias de software y hardware. Trabajarás con tecnología de punta.",
-            requisitos: "Conocimientos en redes, sistemas operativos (Windows/Linux), hardware. Certificaciones son una ventaja.",
-            responsable: "Ing. Roberto Sánchez",
-            contacto: "roberto.sanchez@itsupport.com - Tel: 477 555 1234",
-            fecha_ini: "2025-03-01",
-            fecha_fin: "2025-08-31",
-            vacantes: 5,
-            disponible: true,
-            area: "Soporte IT"
-        },
-        {
-            id: 4,
-            titulo: "Diseñador UI/UX",
-            empresa: "Creative Digital Solutions",
-            descripcion: "Diseño de interfaces y experiencias de usuario para aplicaciones web y móviles. Colaborarás con equipos de desarrollo.",
-            requisitos: "Conocimiento en Figma, Adobe XD, principios de diseño. Portfolio requerido. Creatividad y atención al detalle.",
-            responsable: "Diseñadora Laura Fernández",
-            contacto: "laura.fernandez@creativedigital.com - Tel: 477 444 7890",
-            fecha_ini: "2025-03-15",
-            fecha_fin: "2025-08-15",
-            vacantes: 2,
-            disponible: true,
-            area: "Diseño"
-        },
-        {
-            id: 5,
-            titulo: "Administrador de Bases de Datos",
-            empresa: "Database Experts S.A.",
-            descripcion: "Administración y optimización de bases de datos empresariales. Garantizarás la disponibilidad y seguridad de la información.",
-            requisitos: "MySQL, PostgreSQL, SQL Server. Conocimientos en optimización y backup. Experiencia en ambientes productivos.",
-            responsable: "Ing. Miguel Ángel Torres",
-            contacto: "miguel.torres@dbexperts.com - Tel: 477 333 2222",
-            fecha_ini: "2025-02-15",
-            fecha_fin: "2025-07-15",
-            vacantes: 1,
-            disponible: false,
-            area: "Bases de Datos"
-        }
-    ];
-
-    // Notificaciones de ejemplo
-    const notificacionesEjemplo = [
-        {
-            id: 1,
-            fecha_env: "2025-01-10",
-            mensaje: "Tu solicitud para Desarrollador Full Stack ha sido recibida."
-        },
-        {
-            id: 2,
-            fecha_env: "2025-01-09",
-            mensaje: "Nuevas residencias disponibles en el área de Data Science."
-        },
-        {
-            id: 3,
-            fecha_env: "2025-01-08",
-            mensaje: "Recuerda completar tu perfil para aumentar tus oportunidades."
-        }
-    ];
-
-    // Cargar datos iniciales
+    // Cargar datos al inicio
     useEffect(() => {
-        // Cargar residencias
-        setResidencias(datosResidenciasEjemplo);
-        setNotificaciones(notificacionesEjemplo);
-        
-        // Verificar si el usuario ya tiene una residencia aceptada
-        // En una app real, esto vendría de una API
-        const verificarEstadoUsuario = () => {
-            // Obtener del localStorage o API
-            const estadoGuardado = localStorage.getItem('estadoResidenciaUsuario');
-            
-            if (estadoGuardado === 'aceptada') {
-                setEstadoUsuario('aceptada');
-            } else {
-                setEstadoUsuario(null);
-            }
-        };
-        
-        verificarEstadoUsuario();
-    }, []);
+        if (user && isAuthenticated) {
+            cargarDatos();
+        }
+    }, [user, isAuthenticated]);
 
-    // Determinar si el usuario puede solicitar
-    const puedeSolicitar = estadoUsuario === null;
-    const tieneResidenciaAceptada = estadoUsuario === 'aceptada';
+    // Cargar todas las datos necesarios
+    const cargarDatos = async () => {
+        setCargando(true);
+        try {
+            await Promise.all([
+                cargarResidencias(),
+                cargarSolicitudesUsuario(),
+                cargarNotificaciones()
+            ]);
+        } catch (error) {
+            console.error('Error cargando datos:', error);
+            toast.error('Error al cargar los datos. Intenta recargar la página.');
+        } finally {
+            setCargando(false);
+        }
+    };
+
+    // Cargar residencias desde Supabase
+    const cargarResidencias = async () => {
+        try {
+            // Obtener residencias con información del responsable
+            const { data: residenciasData, error } = await supabase
+                .from('residencia')
+                .select(`
+                    *,
+                    responsableresidencia (nombre, apellido, contacto, correo)
+                `)
+                .order('id_residencia', { ascending: true });
+
+            if (error) throw error;
+
+            // Formatear datos para la UI
+            const residenciasFormateadas = residenciasData.map(residencia => ({
+                id: residencia.id_residencia,
+                titulo: `Residencia ${residencia.id_residencia} - ${residencia.empresa}`,
+                empresa: residencia.empresa,
+                descripcion: residencia.descripcion,
+                requisitos: 'Estudiante activo, buen promedio, conocimientos básicos del área.',
+                responsable: `${residencia.responsableresidencia?.nombre || ''} ${residencia.responsableresidencia?.apellido || ''}`.trim(),
+                contacto: residencia.responsableresidencia?.contacto || residencia.responsableresidencia?.correo || 'No disponible',
+                fecha_ini: residencia.fecha_inicio,
+                fecha_fin: residencia.fecha_fin,
+                vacantes: residencia.vacantes || 0,
+                disponible: (residencia.vacantes > 0 && residencia.estado === 'Pendiente'),
+                area: obtenerAreaPorEmpresa(residencia.empresa),
+                estado_residencia: residencia.estado
+            }));
+
+            setResidencias(residenciasFormateadas);
+        } catch (error) {
+            console.error('Error cargando residencias:', error);
+            throw error;
+        }
+    };
+
+    // Función auxiliar para asignar área según empresa
+    const obtenerAreaPorEmpresa = (empresa) => {
+        const empresasAreas = {
+            'Serviacero': 'Ingeniería Mecánica',
+            'Audi Motors': 'Ingeniería Automotriz',
+            'Ropa y Novedades Martha': 'Administración'
+        };
+        return empresasAreas[empresa] || 'General';
+    };
+
+    // Cargar solicitudes del usuario
+    const cargarSolicitudesUsuario = async () => {
+        try {
+            const { data: solicitudes, error } = await supabase
+                .from('solicitud_alumno')
+                .select('*')
+                .eq('id_alumno', user.id);
+
+            if (error) throw error;
+
+            // Verificar si tiene una solicitud aceptada
+            const aceptada = solicitudes?.find(s => s.estado === 'Aceptado');
+            const tienePendientes = solicitudes?.some(s => s.estado === 'Pendiente');
+            const tieneAceptada = !!aceptada;
+
+            setEstadoUsuario({
+                puedeSolicitar: !tieneAceptada && !tienePendientes,
+                tieneAceptada,
+                solicitudAceptada: aceptada
+            });
+
+            // Si tiene residencia aceptada, actualizar localStorage
+            if (tieneAceptada) {
+                localStorage.setItem('estadoResidenciaUsuario', 'aceptada');
+            } else {
+                localStorage.removeItem('estadoResidenciaUsuario');
+            }
+
+        } catch (error) {
+            console.error('Error cargando solicitudes:', error);
+            throw error;
+        }
+    };
+
+    // Cargar notificaciones
+    const cargarNotificaciones = async () => {
+        try {
+            // Obtener notificaciones de las solicitudes
+            const { data: solicitudes, error } = await supabase
+                .from('solicitud_alumno')
+                .select('*, residencia(empresa)')
+                .eq('id_alumno', user.id)
+                .order('fecha_solicitud', { ascending: false });
+
+            if (error) throw error;
+
+            const notificacionesFormateadas = solicitudes.map(solicitud => ({
+                id: solicitud.id_solicitud,
+                fecha_env: solicitud.fecha_solicitud?.split('T')[0] || new Date().toISOString().split('T')[0],
+                mensaje: `Tu solicitud para ${solicitud.residencia?.empresa || 'una residencia'} está ${solicitud.estado}`,
+                tipo: 'solicitud'
+            }));
+
+            setNotificaciones(notificacionesFormateadas);
+        } catch (error) {
+            console.error('Error cargando notificaciones:', error);
+            // Usar notificaciones de ejemplo en caso de error
+            setNotificaciones([
+                {
+                    id: 1,
+                    fecha_env: new Date().toISOString().split('T')[0],
+                    mensaje: "Bienvenido al sistema de residencias",
+                    tipo: 'sistema'
+                }
+            ]);
+        }
+    };
 
     // Filtrar residencias por búsqueda
     const residenciasFiltradas = residencias.filter(residencia =>
@@ -167,9 +197,6 @@ export default function Residencias() {
                     borderLeft: '5px solid #2e7d32',
                     color: '#333',
                     maxWidth: '450px',
-                },
-                bodyStyle: {
-                    fontSize: '14px',
                 }
             }
         );
@@ -195,7 +222,6 @@ export default function Residencias() {
                     background: '#ffebee',
                     borderLeft: '5px solid #c62828',
                     color: '#333',
-                    maxWidth: '450px',
                 }
             }
         );
@@ -221,7 +247,6 @@ export default function Residencias() {
                     background: '#fffaf0',
                     borderLeft: '5px solid #d35400',
                     color: '#333',
-                    maxWidth: '450px',
                 }
             }
         );
@@ -247,10 +272,6 @@ export default function Residencias() {
                     background: '#f0f8ff',
                     borderLeft: '5px solid #003366',
                     color: '#333',
-                    maxWidth: '450px',
-                },
-                bodyStyle: {
-                    fontSize: '14px',
                 }
             }
         );
@@ -310,8 +331,7 @@ export default function Residencias() {
                             marginTop: '2px'
                         }}></i>
                         <span>
-                            <strong>Importante:</strong> Esta acción enviará tu solicitud para revisión. 
-                            Solo puedes tener una residencia aceptada a la vez.
+                            <strong>Importante:</strong> Solo puedes tener una residencia aceptada a la vez.
                         </span>
                     </p>
                 </div>
@@ -388,60 +408,57 @@ export default function Residencias() {
                     maxWidth: '500px',
                     borderRadius: '10px',
                     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
-                },
-                bodyStyle: {
-                    fontSize: '14px',
                 }
             }
         );
     };
 
-    // Función para procesar la solicitud después de confirmar
+    // Función para procesar la solicitud en Supabase
     const procesarSolicitudResidencia = async (idResidencia, residencia) => {
         try {
-            // 1. Guardar la solicitud en localStorage (simulación de API)
-            const solicitudNueva = {
-                id: Date.now(),
-                id_residencia: idResidencia,
-                titulo: residencia.titulo,
-                empresa: residencia.empresa,
-                descripcion: residencia.descripcion,
-                responsable: residencia.responsable,
-                contacto: residencia.contacto,
-                fecha_ini: residencia.fecha_ini,
-                fecha_fin: residencia.fecha_fin,
-                vacantes: residencia.vacantes,
-                estado: "Pendiente",
-                fecha_solicitud: new Date().toISOString().split('T')[0],
-                fecha_respuesta: null,
-                area: residencia.area
-            };
+            // 1. Crear la solicitud en Supabase
+            const { data: solicitud, error: errorSolicitud } = await supabase
+                .from('solicitud_alumno')
+                .insert([
+                    {
+                        id_alumno: user.id,
+                        id_residencia: idResidencia,
+                        estado: 'Pendiente',
+                        confirmacion: 'Pendiente',
+                        fecha_solicitud: new Date().toISOString()
+                    }
+                ])
+                .select()
+                .single();
 
-            // Guardar en localStorage (simulación de base de datos)
-            const solicitudesExistentes = JSON.parse(localStorage.getItem('solicitudesUsuario') || '[]');
-            solicitudesExistentes.push(solicitudNueva);
-            localStorage.setItem('solicitudesUsuario', JSON.stringify(solicitudesExistentes));
+            if (errorSolicitud) {
+                console.error('Error al insertar solicitud:', errorSolicitud);
+                throw new Error(`Error al crear la solicitud: ${errorSolicitud.message}`);
+            }
 
-            // 2. Remover la residencia de la lista de disponibles
-            setResidencias(prev => prev.filter(r => r.id !== idResidencia));
+            // 2. El trigger ya disminuye las vacantes automáticamente
+            // No es necesario hacer update manualmente
             
-            // 3. Agregar notificación interna
+            // 3. Recargar todos los datos para reflejar cambios
+            await cargarDatos();
+            
+            // 4. Agregar notificación
             const nuevaNotificacion = {
                 id: notificaciones.length + 1,
                 fecha_env: new Date().toISOString().split('T')[0],
-                mensaje: `Solicitaste la residencia: ${residencia.titulo} - ${residencia.empresa}`,
+                mensaje: `Solicitaste la residencia: ${residencia.titulo}`,
                 tipo: 'solicitud'
             };
             setNotificaciones(prev => [nuevaNotificacion, ...prev]);
             
-            // 4. Mostrar notificación de éxito
+            // 5. Mostrar notificación de éxito
             mostrarExito(
                 "¡Solicitud Enviada!",
                 `Tu solicitud para "${residencia.titulo}" ha sido enviada exitosamente. ` +
                 `Recibirás una respuesta por correo electrónico.`
             );
 
-            // 5. Mostrar notificación para ver estado
+            // 6. Mostrar notificación para ver estado
             setTimeout(() => {
                 toast.info(
                     <div>
@@ -531,25 +548,33 @@ export default function Residencias() {
             }, 1500);
 
         } catch (error) {
+            console.error('Error al procesar solicitud:', error);
             mostrarError(
                 "Error al procesar",
-                "Hubo un problema al procesar tu solicitud. Por favor intenta de nuevo."
+                `Hubo un problema al procesar tu solicitud: ${error.message}. Por favor intenta de nuevo.`
             );
-            console.error("Error:", error);
         }
     };
 
     // Función para solicitar residencia
     const solicitarResidencia = (idResidencia) => {
-        if (!puedeSolicitar) {
+        if (!estadoUsuario.puedeSolicitar) {
             mostrarAdvertencia(
                 "Residencia no disponible",
-                "Ya tienes una residencia aceptada. No puedes solicitar más residencias."
+                "Ya tienes una residencia aceptada o pendiente. No puedes solicitar más residencias."
             );
             return;
         }
 
         const residenciaSolicitada = residencias.find(r => r.id === idResidencia);
+        
+        if (!residenciaSolicitada) {
+            mostrarAdvertencia(
+                "Residencia no encontrada",
+                "La residencia seleccionada no está disponible."
+            );
+            return;
+        }
         
         if (!residenciaSolicitada.disponible) {
             mostrarAdvertencia(
@@ -559,17 +584,30 @@ export default function Residencias() {
             return;
         }
 
+        if (residenciaSolicitada.vacantes <= 0) {
+            mostrarAdvertencia(
+                "Sin vacantes",
+                "Esta residencia ya no tiene vacantes disponibles."
+            );
+            return;
+        }
+
         mostrarConfirmacionSolicitud(residenciaSolicitada);
     };
 
     // Función para formatear fecha
     const formatearFecha = (fechaStr) => {
-        const fecha = new Date(fechaStr);
-        return fecha.toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
+        if (!fechaStr) return "No especificada";
+        try {
+            const fecha = new Date(fechaStr);
+            return fecha.toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        } catch (error) {
+            return fechaStr;
+        }
     };
 
     // Función para limpiar todas las notificaciones
@@ -583,7 +621,7 @@ export default function Residencias() {
 
     // Banner informativo cuando hay residencia aceptada
     const BannerResidenciaAceptada = () => {
-        if (!tieneResidenciaAceptada) return null;
+        if (!estadoUsuario.tieneAceptada) return null;
         
         return (
             <div className={`${styles.bannerEstado} ${styles.bannerAceptada}`}>
@@ -598,13 +636,7 @@ export default function Residencias() {
                     </div>
                     <button 
                         className={styles.btnIrSolicitudes}
-                        onClick={() => {
-                            mostrarInfo(
-                                "Redirigiendo...",
-                                "Serás redirigido al módulo de Solicitudes."
-                            );
-                            setTimeout(() => navigate('/solicitudes'), 1000);
-                        }}
+                        onClick={() => navigate('/solicitudes')}
                     >
                         <i className="fas fa-external-link-alt"></i>
                         Ver mi residencia
@@ -613,6 +645,27 @@ export default function Residencias() {
             </div>
         );
     };
+
+    // Mostrar loading
+    if (cargando) {
+        return (
+            <Seccion title="RESIDENCIAS PROFESIONALES">
+                <div className={styles.pageContainer}>
+                    <div className={styles.loadingContainer}>
+                        <div className={styles.loadingSpinner}>
+                            <i className="fas fa-spinner fa-spin fa-3x"></i>
+                        </div>
+                        <p>Cargando residencias disponibles...</p>
+                    </div>
+                </div>
+            </Seccion>
+        );
+    }
+
+    // Verificar autenticación
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return (
         <Seccion title="RESIDENCIAS PROFESIONALES">
@@ -643,10 +696,10 @@ export default function Residencias() {
                             <i className="fas fa-building"></i>
                             <span>Residencias disponibles: <strong>{residenciasFiltradas.length}</strong></span>
                         </div>
-                        {!puedeSolicitar && (
+                        {!estadoUsuario.puedeSolicitar && (
                             <div className={styles.estadoUsuario}>
                                 <i className="fas fa-info-circle"></i>
-                                <span>Solo lectura - Tienes una residencia aceptada</span>
+                                <span>{estadoUsuario.tieneAceptada ? 'Tienes una residencia aceptada' : 'Tienes solicitudes pendientes'}</span>
                             </div>
                         )}
                     </div>
@@ -664,7 +717,7 @@ export default function Residencias() {
                                         </span>
                                     </div>
                                     <div className={styles.headerRight}>
-                                        {!residencia.disponible ? (
+                                        {!residencia.disponible || residencia.vacantes <= 0 ? (
                                             <span className={styles.badgeNoDisponible}>
                                                 <i className="fas fa-ban"></i> No disponible
                                             </span>
@@ -738,21 +791,23 @@ export default function Residencias() {
 
                                     {/* Botón de solicitar */}
                                     <div className={styles.empresaActions}>
-                                        {!puedeSolicitar ? (
+                                        {!estadoUsuario.puedeSolicitar ? (
                                             <button 
                                                 className={styles.btnSolicitarDisabled}
                                                 disabled
                                                 onClick={() => {
                                                     mostrarAdvertencia(
                                                         "Acción no disponible",
-                                                        "Ya tienes una residencia aceptada. No puedes solicitar más residencias."
+                                                        estadoUsuario.tieneAceptada 
+                                                            ? "Ya tienes una residencia aceptada. No puedes solicitar más residencias."
+                                                            : "Ya tienes solicitudes pendientes."
                                                     );
                                                 }}
                                             >
                                                 <i className="fas fa-lock"></i>
-                                                Residencia aceptada
+                                                {estadoUsuario.tieneAceptada ? 'Residencia aceptada' : 'Solicitudes pendientes'}
                                             </button>
-                                        ) : !residencia.disponible ? (
+                                        ) : !residencia.disponible || residencia.vacantes <= 0 ? (
                                             <button 
                                                 className={styles.btnSolicitarDisabled}
                                                 disabled
@@ -775,7 +830,7 @@ export default function Residencias() {
                         ))
                     ) : (
                         <div className={styles.sinResultados}>
-                            {tieneResidenciaAceptada ? (
+                            {estadoUsuario.tieneAceptada ? (
                                 <>
                                     <div className={styles.sinResultadosIcon}>
                                         <i className="fas fa-check-double fa-3x"></i>
@@ -789,13 +844,7 @@ export default function Residencias() {
                                         </p>
                                         <button 
                                             className={styles.btnIrSolicitudes}
-                                            onClick={() => {
-                                                mostrarInfo(
-                                                    "Redirigiendo...",
-                                                    "Serás redirigido al módulo de Solicitudes."
-                                                );
-                                                setTimeout(() => navigate('/solicitudes'), 1000);
-                                            }}
+                                            onClick={() => navigate('/solicitudes')}
                                         >
                                             <i className="fas fa-external-link-alt"></i>
                                             Ver mi residencia
@@ -833,7 +882,7 @@ export default function Residencias() {
                     )}
                 </main>
 
-                {/* Barra lateral con búsqueda y notificaciones */}
+                {/* Barra lateral */}
                 <aside className={styles.sidebar}>
                     {/* Barra de búsqueda */}
                     <div className={styles.searchContainer}>
@@ -848,7 +897,7 @@ export default function Residencias() {
                                 value={busqueda}
                                 onChange={(e) => setBusqueda(e.target.value)}
                                 className={styles.searchInput}
-                                disabled={!puedeSolicitar}
+                                disabled={!estadoUsuario.puedeSolicitar}
                             />
                             {busqueda && (
                                 <button 
@@ -866,17 +915,11 @@ export default function Residencias() {
                         </p>
                     </div>
 
-                    {/* Enlace a solicitudes - SIEMPRE visible */}
+                    {/* Enlace a solicitudes */}
                     <div className={styles.solicitudesContainer}>
                         <button 
                             className={styles.btnSolicitudes}
-                            onClick={() => {
-                                mostrarInfo(
-                                    "Redirigiendo...",
-                                    "Serás redirigido al módulo de Solicitudes."
-                                );
-                                setTimeout(() => navigate('/solicitudes'), 1000);
-                            }}
+                            onClick={() => navigate('/solicitudes')}
                         >
                             <div className={styles.btnSolicitudesContent}>
                                 <div className={styles.btnSolicitudesIcon}>
@@ -888,7 +931,7 @@ export default function Residencias() {
                                         Ver estado de mis solicitudes
                                     </span>
                                 </div>
-                                {!puedeSolicitar && (
+                                {!estadoUsuario.puedeSolicitar && (
                                     <div className={styles.btnSolicitudesBadge}>
                                         <i className="fas fa-check"></i>
                                     </div>
@@ -1017,7 +1060,9 @@ export default function Residencias() {
                             </div>
                             <div className={styles.estadisticaItem}>
                                 <span className={styles.estadisticaLabel}>Áreas:</span>
-                                <span className={styles.estadisticaValor}>4</span>
+                                <span className={styles.estadisticaValor}>
+                                    {[...new Set(residencias.map(r => r.area))].length}
+                                </span>
                             </div>
                             <div className={styles.estadisticaItem}>
                                 <span className={styles.estadisticaLabel}>Vacantes:</span>

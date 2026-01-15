@@ -4,94 +4,206 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Seccion from "../../assets/templates/seccion/seccion.jsx";
 import styles from './solicitudes.module.css';
+import { useAuth } from '../../context/authContext';
+import { supabase } from '../../lib/supabase';
 
 export default function Solicitudes() {
     const navigate = useNavigate();
+    const { user, isAuthenticated } = useAuth();
+    
     const [solicitudes, setSolicitudes] = useState([]);
     const [estadisticas, setEstadisticas] = useState({
         aceptadas: 0,
         pendientes: 0,
         rechazadas: 0
     });
-
-    // Estado de la solicitud aceptada (si existe)
+    const [cargando, setCargando] = useState(true);
     const [solicitudAceptada, setSolicitudAceptada] = useState(null);
     
-    // Simular carga de solicitudes desde "base de datos"
+    // Cargar datos al inicio
     useEffect(() => {
-        cargarSolicitudesDesdeBD();
-        
-        // Simular actualizaciones periódicas (como si vinieran de la base de datos)
-        const intervalo = setInterval(() => {
-            cargarSolicitudesDesdeBD();
-        }, 30000); // Cada 30 segundos verifica actualizaciones
-        
-        return () => clearInterval(intervalo);
-    }, []);
-
-    const cargarSolicitudesDesdeBD = () => {
-        try {
-            // Primero intentar cargar de localStorage (simulación de BD)
-            const solicitudesBD = JSON.parse(localStorage.getItem('solicitudesUsuarioBD') || '[]');
+        if (user && isAuthenticated) {
+            cargarSolicitudesDesdeSupabase();
             
-            if (solicitudesBD.length > 0) {
-                procesarSolicitudes(solicitudesBD);
-            } else {
-                // Si no hay en "BD", usar datos iniciales de ejemplo
-                cargarDatosIniciales();
+            const intervalo = setInterval(() => {
+                cargarSolicitudesDesdeSupabase();
+            }, 30000);
+            
+            return () => clearInterval(intervalo);
+        }
+    }, [user, isAuthenticated]);
+
+    // Cargar solicitudes desde Supabase - VERSIÓN CORREGIDA CON TABLA "residencia"
+    const cargarSolicitudesDesdeSupabase = async () => {
+        try {
+            setCargando(true);
+            
+            // CONSULTA CORRECTA: Obtener solicitudes con información de residencia y responsable
+            // Usando tabla "residencia" (singular)
+            const { data: solicitudesData, error } = await supabase
+                .from('solicitud_alumno')
+                .select(`
+                    *,
+                    residencia (
+                        empresa,
+                        descripcion,
+                        fecha_inicio,
+                        fecha_fin,
+                        vacantes,
+                        estado,
+                        id_responsable,
+                        responsableresidencia (
+                            nombre,
+                            apellido,
+                            contacto,
+                            correo
+                        )
+                    )
+                `)
+                .eq('id_alumno', user.id)
+                .order('fecha_solicitud', { ascending: false });
+
+            if (error) {
+                console.error("Error cargando solicitudes:", error);
+                throw error;
             }
+
+            console.log("Datos obtenidos de Supabase:", solicitudesData);
+
+            // Formatear datos para la UI
+            const solicitudesFormateadas = solicitudesData.map(solicitud => {
+                const residencia = solicitud.residencia;
+                const responsable = residencia?.responsableresidencia;
+                
+                return {
+                    id: solicitud.id_solicitud,
+                    id_residencia: solicitud.id_residencia,
+                    titulo: `Residencia ${solicitud.id_residencia} - ${residencia?.empresa || 'Empresa no disponible'}`,
+                    empresa: residencia?.empresa || 'No disponible',
+                    descripcion: residencia?.descripcion || 'No disponible',
+                    requisitos: 'Estudiante activo, buen promedio, conocimientos básicos del área.',
+                    responsable: `${responsable?.nombre || ''} ${responsable?.apellido || ''}`.trim() || 'No disponible',
+                    contacto: responsable?.contacto || responsable?.correo || 'No disponible',
+                    fecha_ini: residencia?.fecha_inicio,
+                    fecha_fin: residencia?.fecha_fin,
+                    vacantes: residencia?.vacantes || 0,
+                    estado: solicitud.estado || 'Pendiente',
+                    fecha_solicitud: solicitud.fecha_solicitud,
+                    fecha_respuesta: solicitud.fecha_respuesta,
+                    area: obtenerAreaPorEmpresa(residencia?.empresa),
+                    motivo_rechazo: solicitud.motivo_rechazo,
+                    puedeCancelar: solicitud.estado === 'Pendiente',
+                    confirmacion: solicitud.confirmacion
+                };
+            });
+
+            procesarSolicitudes(solicitudesFormateadas);
+            
         } catch (error) {
             console.error("Error cargando solicitudes:", error);
-            cargarDatosIniciales();
+            mostrarError(
+                "Error al cargar",
+                "No se pudieron cargar las solicitudes. Por favor, intenta de nuevo."
+            );
+        } finally {
+            setCargando(false);
         }
     };
 
-    const cargarDatosIniciales = () => {
-        // Datos iniciales - simulan lo que vendría de la base de datos
-        const datosIniciales = [
-            {
-                id: 1,
-                id_residencia: 101,
-                titulo: "Desarrollador Full Stack",
-                empresa: "Tech Solutions S.A. de C.V.",
-                descripcion: "Desarrollo de aplicaciones web y móviles utilizando tecnologías modernas como React, Node.js y MongoDB.",
-                requisitos: "Conocimiento en JavaScript, HTML, CSS, Git. Estudiante de últimos semestres de Ingeniería en Sistemas.",
-                responsable: "Ing. Ana Martínez López",
-                contacto: "ana.martinez@techsolutions.com - Tel: 477 123 4567",
-                fecha_ini: "2025-02-01",
-                fecha_fin: "2025-07-31",
-                vacantes: 3,
-                estado: "Pendiente", // Inicialmente todas están pendientes
-                fecha_solicitud: new Date().toISOString().split('T')[0],
-                fecha_respuesta: null,
-                area: "Desarrollo Web",
-                motivo_rechazo: null,
-                puedeCancelar: true // El usuario puede cancelar solo si está pendiente
-            },
-            {
-                id: 2,
-                id_residencia: 102,
-                titulo: "Analista de Datos",
-                empresa: "Data Analytics Corp",
-                descripcion: "Análisis de grandes volúmenes de datos para la toma de decisiones empresariales.",
-                requisitos: "Conocimientos en SQL, Python, Excel avanzado. Estadística básica.",
-                responsable: "Lic. Carlos Rodríguez",
-                contacto: "carlos.rodriguez@dataanalytics.com - Tel: 477 987 6543",
-                fecha_ini: "2025-01-15",
-                fecha_fin: "2025-06-30",
-                vacantes: 2,
-                estado: "Pendiente",
-                fecha_solicitud: new Date().toISOString().split('T')[0],
-                fecha_respuesta: null,
-                area: "Data Science",
-                motivo_rechazo: null,
-                puedeCancelar: true
+    // VERSIÓN ALTERNATIVA SI LA CONSULTA ANIDADA NO FUNCIONA
+    const cargarSolicitudesDesdeSupabaseAlternativa = async () => {
+        try {
+            setCargando(true);
+            
+            // 1. Obtener solicitudes básicas
+            const { data: solicitudesData, error } = await supabase
+                .from('solicitud_alumno')
+                .select('*')
+                .eq('id_alumno', user.id)
+                .order('fecha_solicitud', { ascending: false });
+
+            if (error) {
+                console.error("Error cargando solicitudes:", error);
+                throw error;
             }
-        ];
-        
-        // Guardar en "BD" (localStorage)
-        localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(datosIniciales));
-        procesarSolicitudes(datosIniciales);
+
+            console.log("Solicitudes básicas:", solicitudesData);
+
+            // 2. Para cada solicitud, obtener datos de residencia y responsable
+            const solicitudesCompletas = await Promise.all(
+                solicitudesData.map(async (solicitud) => {
+                    try {
+                        // Obtener datos de la residencia
+                        const { data: residenciaData, error: errorResidencia } = await supabase
+                            .from('residencia')
+                            .select('*')
+                            .eq('id_residencia', solicitud.id_residencia)
+                            .single();
+
+                        if (errorResidencia) {
+                            console.error(`Error obteniendo residencia ${solicitud.id_residencia}:`, errorResidencia);
+                            return { ...solicitud, residencia: null, responsable: null };
+                        }
+
+                        // Obtener datos del responsable
+                        let responsableData = null;
+                        if (residenciaData.id_responsable) {
+                            const { data: responsable, error: errorResponsable } = await supabase
+                                .from('responsableresidencia')
+                                .select('*')
+                                .eq('id_responsable', residenciaData.id_responsable)
+                                .single();
+
+                            if (!errorResponsable) {
+                                responsableData = responsable;
+                            }
+                        }
+
+                        return {
+                            ...solicitud,
+                            residencia: residenciaData,
+                            responsable: responsableData
+                        };
+                    } catch (error) {
+                        console.error(`Error procesando solicitud ${solicitud.id_solicitud}:`, error);
+                        return { ...solicitud, residencia: null, responsable: null };
+                    }
+                })
+            );
+
+            // 3. Formatear para UI
+            const solicitudesFormateadas = solicitudesCompletas.map(item => ({
+                id: item.id_solicitud,
+                id_residencia: item.id_residencia,
+                titulo: `Residencia ${item.id_residencia} - ${item.residencia?.empresa || 'Empresa no disponible'}`,
+                empresa: item.residencia?.empresa || 'No disponible',
+                descripcion: item.residencia?.descripcion || 'No disponible',
+                requisitos: 'Estudiante activo, buen promedio, conocimientos básicos del área.',
+                responsable: `${item.responsable?.nombre || ''} ${item.responsable?.apellido || ''}`.trim() || 'No disponible',
+                contacto: item.responsable?.contacto || item.responsable?.correo || 'No disponible',
+                fecha_ini: item.residencia?.fecha_inicio,
+                fecha_fin: item.residencia?.fecha_fin,
+                vacantes: item.residencia?.vacantes || 0,
+                estado: item.estado || 'Pendiente',
+                fecha_solicitud: item.fecha_solicitud,
+                fecha_respuesta: item.fecha_respuesta,
+                area: obtenerAreaPorEmpresa(item.residencia?.empresa),
+                motivo_rechazo: item.motivo_rechazo,
+                puedeCancelar: item.estado === 'Pendiente',
+                confirmacion: item.confirmacion
+            }));
+
+            procesarSolicitudes(solicitudesFormateadas);
+            
+        } catch (error) {
+            console.error("Error cargando solicitudes:", error);
+            mostrarError(
+                "Error al cargar",
+                "No se pudieron cargar las solicitudes. Por favor, intenta de nuevo."
+            );
+        } finally {
+            setCargando(false);
+        }
     };
 
     const procesarSolicitudes = (solicitudesData) => {
@@ -111,18 +223,35 @@ export default function Solicitudes() {
         // Actualizar estado en residencias si hay una aceptada
         if (aceptada) {
             localStorage.setItem('estadoResidenciaUsuario', 'aceptada');
+        } else {
+            localStorage.removeItem('estadoResidenciaUsuario');
         }
+    };
+
+    // Función auxiliar para asignar área según empresa
+    const obtenerAreaPorEmpresa = (empresa) => {
+        if (!empresa) return 'General';
+        const empresasAreas = {
+            'Serviacero': 'Ingeniería Mecánica',
+            'Audi Motors': 'Ingeniería Automotriz',
+            'Ropa y Novedades Martha': 'Administración'
+        };
+        return empresasAreas[empresa] || 'General';
     };
 
     // Función para formatear fecha
     const formatearFecha = (fechaStr) => {
         if (!fechaStr) return "En espera";
-        const fecha = new Date(fechaStr);
-        return fecha.toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        });
+        try {
+            const fecha = new Date(fechaStr);
+            return fecha.toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        } catch (error) {
+            return fechaStr;
+        }
     };
 
     // Función para obtener clase CSS según estado
@@ -242,77 +371,7 @@ export default function Solicitudes() {
         );
     };
 
-    // Función para simular que el administrador ha actualizado el estado
-    // (En realidad esto sería una notificación push desde el servidor)
-    const simularActualizacionAdministrador = () => {
-        const actualizacionesPosibles = [
-            {
-                id: 1,
-                nuevoEstado: "Aceptado",
-                mensaje: "¡Tu solicitud ha sido aceptada por el administrador!",
-                motivo: null
-            },
-            {
-                id: 2,
-                nuevoEstado: "Rechazado",
-                mensaje: "Tu solicitud ha sido rechazada por el administrador.",
-                motivo: "No cumples con los requisitos mínimos para esta residencia."
-            },
-            {
-                id: null, // Para simular que no hay cambios
-                nuevoEstado: null
-            }
-        ];
-        
-        // Seleccionar una actualización aleatoria (simula notificación del admin)
-        const actualizacion = actualizacionesPosibles[Math.floor(Math.random() * actualizacionesPosibles.length)];
-        
-        if (actualizacion.id && actualizacion.nuevoEstado) {
-            const nuevasSolicitudes = solicitudes.map(s => {
-                if (s.id === actualizacion.id) {
-                    const actualizada = {
-                        ...s,
-                        estado: actualizacion.nuevoEstado,
-                        fecha_respuesta: new Date().toISOString().split('T')[0],
-                        motivo_rechazo: actualizacion.motivo || null,
-                        puedeCancelar: false // Ya no se puede cancelar
-                    };
-                    
-                    // Mostrar notificación de la actualización
-                    if (actualizacion.nuevoEstado === "Aceptado") {
-                        mostrarExito("Residencia Aceptada", actualizacion.mensaje);
-                        // Si es aceptada, rechazar automáticamente las demás
-                        return actualizada;
-                    } else {
-                        mostrarAdvertencia("Residencia Rechazada", actualizacion.mensaje);
-                        return actualizada;
-                    }
-                }
-                
-                // Si se aceptó una, rechazar automáticamente las demás pendientes
-                if (actualizacion.nuevoEstado === "Aceptado" && s.estado === "Pendiente") {
-                    return {
-                        ...s,
-                        estado: "Rechazado",
-                        fecha_respuesta: new Date().toISOString().split('T')[0],
-                        motivo_rechazo: "Otra residencia fue aceptada",
-                        puedeCancelar: false
-                    };
-                }
-                
-                return s;
-            });
-            
-            // Guardar en "BD"
-            localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(nuevasSolicitudes));
-            procesarSolicitudes(nuevasSolicitudes);
-            
-            // Disparar evento para que residencias.jsx se actualice
-            window.dispatchEvent(new Event('storage'));
-        }
-    };
-
-    // Función para cancelar solicitud pendiente (EL USUARIO SÍ PUEDE HACER ESTO)
+    // Función para cancelar solicitud pendiente - CORREGIDA
     const cancelarSolicitud = (idSolicitud) => {
         const solicitud = solicitudes.find(s => s.id === idSolicitud);
         
@@ -411,42 +470,172 @@ export default function Solicitudes() {
         );
     };
 
-    const procesarCancelacion = (idSolicitud, solicitud) => {
-        // Eliminar la solicitud de la lista
-        const nuevasSolicitudes = solicitudes.filter(s => s.id !== idSolicitud);
-        
-        // Guardar en "BD"
-        localStorage.setItem('solicitudesUsuarioBD', JSON.stringify(nuevasSolicitudes));
-        procesarSolicitudes(nuevasSolicitudes);
-        
-        // Mostrar notificación
-        mostrarExito(
-            "Solicitud Cancelada",
-            `Has cancelado la solicitud para: "${solicitud.titulo}". ` +
-            `El administrador ha sido notificado.`
-        );
-        
-        // En una app real, aquí se enviaría una notificación al administrador
-        console.log(`Notificación al admin: Solicitud ${idSolicitud} cancelada por el usuario`);
+    const procesarCancelacion = async (idSolicitud, solicitud) => {
+        try {
+            // 1. Primero, aumentar las vacantes en la residencia
+            const { error: errorUpdateVacantes } = await supabase
+                .from('residencia')  // CORREGIDO: 'residencia' (singular)
+                .update({ 
+                    vacantes: (solicitud.vacantes || 0) + 1 
+                })
+                .eq('id_residencia', solicitud.id_residencia);
+
+            if (errorUpdateVacantes) {
+                console.error('Error al actualizar vacantes:', errorUpdateVacantes);
+                throw new Error('No se pudieron restaurar las vacantes');
+            }
+
+            // 2. Eliminar la solicitud de la base de datos
+            const { error: errorDelete } = await supabase
+                .from('solicitud_alumno')
+                .delete()
+                .eq('id_solicitud', idSolicitud);
+
+            if (errorDelete) {
+                console.error('Error al eliminar solicitud:', errorDelete);
+                throw new Error('No se pudo eliminar la solicitud');
+            }
+
+            // 3. Actualizar el estado local
+            const nuevasSolicitudes = solicitudes.filter(s => s.id !== idSolicitud);
+            procesarSolicitudes(nuevasSolicitudes);
+            
+            // 4. Mostrar notificación
+            mostrarExito(
+                "Solicitud Cancelada",
+                `Has cancelado la solicitud para: "${solicitud.titulo}". ` +
+                `El administrador ha sido notificado y la vacante ha sido liberada.`
+            );
+
+            // 5. Disparar evento para que residencias.jsx se actualice
+            window.dispatchEvent(new Event('residencias-updated'));
+
+        } catch (error) {
+            console.error('Error al cancelar solicitud:', error);
+            mostrarError(
+                "Error al cancelar",
+                `Hubo un problema al cancelar la solicitud: ${error.message}. Por favor intenta de nuevo.`
+            );
+        }
     };
 
-    // Función para simular la llegada de una notificación del administrador
-    // (Esto sería reemplazado por WebSockets o polling en una app real)
-    const verificarNotificacionesAdmin = () => {
+    // Función para confirmar una residencia aceptada
+    const confirmarResidencia = async (idSolicitud) => {
+        try {
+            const { error } = await supabase
+                .from('solicitud_alumno')
+                .update({ 
+                    confirmacion: 'Aceptado',
+                    fecha_respuesta: new Date().toISOString()
+                })
+                .eq('id_solicitud', idSolicitud);
+
+            if (error) throw error;
+
+            mostrarExito(
+                "Residencia Confirmada",
+                "Has confirmado tu aceptación de la residencia. Por favor contacta a la empresa para coordinar tu inicio."
+            );
+
+            // Recargar las solicitudes
+            await cargarSolicitudesDesdeSupabase();
+
+        } catch (error) {
+            console.error('Error al confirmar residencia:', error);
+            mostrarError(
+                "Error al confirmar",
+                "No se pudo confirmar la residencia. Por favor intenta de nuevo."
+            );
+        }
+    };
+
+    // Función para rechazar una residencia aceptada - CORREGIDA
+    const rechazarResidencia = async (idSolicitud) => {
+        try {
+            // Primero, aumentar las vacantes (porque se rechaza una residencia aceptada)
+            const solicitud = solicitudes.find(s => s.id === idSolicitud);
+            
+            if (solicitud && solicitud.id_residencia) {
+                const { error: errorUpdateVacantes } = await supabase
+                    .from('residencia')  // CORREGIDO: 'residencia' (singular)
+                    .update({ 
+                        vacantes: (solicitud.vacantes || 0) + 1 
+                    })
+                    .eq('id_residencia', solicitud.id_residencia);
+
+                if (errorUpdateVacantes) {
+                    console.error('Error al actualizar vacantes:', errorUpdateVacantes);
+                }
+            }
+
+            // Actualizar el estado de la solicitud a Rechazado
+            const { error } = await supabase
+                .from('solicitud_alumno')
+                .update({ 
+                    estado: 'Rechazado',
+                    confirmacion: 'Rechazado',
+                    fecha_respuesta: new Date().toISOString(),
+                    motivo_rechazo: 'Rechazado por el alumno'
+                })
+                .eq('id_solicitud', idSolicitud);
+
+            if (error) throw error;
+
+            mostrarExito(
+                "Residencia Rechazada",
+                "Has rechazado la residencia aceptada. Ahora podrás solicitar otras residencias disponibles."
+            );
+
+            // Recargar las solicitudes
+            await cargarSolicitudesDesdeSupabase();
+
+            // Disparar evento para que residencias.jsx se actualice
+            window.dispatchEvent(new Event('residencias-updated'));
+
+        } catch (error) {
+            console.error('Error al rechazar residencia:', error);
+            mostrarError(
+                "Error al rechazar",
+                "No se pudo rechazar la residencia. Por favor intenta de nuevo."
+            );
+        }
+    };
+
+    // Función para actualizar las solicitudes manualmente
+    const verificarActualizaciones = () => {
         mostrarInfo(
             "Verificando actualizaciones",
             "Buscando actualizaciones del administrador..."
         );
         
-        setTimeout(() => {
-            simularActualizacionAdministrador();
-        }, 1500);
+        cargarSolicitudesDesdeSupabase();
     };
 
     // Obtener solicitudes por estado
     const solicitudesPendientes = solicitudes.filter(s => s.estado === "Pendiente");
     const solicitudesAceptadas = solicitudes.filter(s => s.estado === "Aceptado");
     const solicitudesRechazadas = solicitudes.filter(s => s.estado === "Rechazado");
+
+    // Mostrar loading
+    if (cargando) {
+        return (
+            <Seccion title="MIS SOLICITUDES">
+                <div className={styles.pageContainer}>
+                    <div className={styles.loadingContainer}>
+                        <div className={styles.loadingSpinner}>
+                            <i className="fas fa-spinner fa-spin fa-3x"></i>
+                        </div>
+                        <p>Cargando tus solicitudes...</p>
+                    </div>
+                </div>
+            </Seccion>
+        );
+    }
+
+    // Verificar autenticación
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return (
         <Seccion title="MIS SOLICITUDES">
@@ -475,17 +664,33 @@ export default function Solicitudes() {
                                 <p>
                                     {solicitudAceptada.titulo} - {solicitudAceptada.empresa}
                                     <br />
-                                    El administrador ha aprobado tu solicitud. Contacta a la empresa para los siguientes pasos.
+                                    El administrador ha aprobado tu solicitud. {solicitudAceptada.confirmacion === 'Aceptado' ? 'Ya confirmaste esta residencia.' : 'Por favor confirma tu aceptación.'}
                                 </p>
                             </div>
-                            <button 
-                                className={styles.btnNotificarAdmin}
-                                onClick={verificarNotificacionesAdmin}
-                                title="Verificar si hay más actualizaciones"
-                            >
-                                <i className="fas fa-sync-alt"></i>
-                                Actualizar
-                            </button>
+                            {solicitudAceptada.confirmacion !== 'Aceptado' && (
+                                <div className={styles.bannerActions}>
+                                    <button 
+                                        className={styles.btnConfirmar}
+                                        onClick={() => confirmarResidencia(solicitudAceptada.id)}
+                                        title="Confirmar aceptación de residencia"
+                                    >
+                                        <i className="fas fa-check"></i>
+                                        Confirmar
+                                    </button>
+                                    <button 
+                                        className={styles.btnRechazar}
+                                        onClick={() => {
+                                            if (window.confirm('¿Estás seguro de rechazar esta residencia aceptada? Podrás solicitar otras residencias disponibles.')) {
+                                                rechazarResidencia(solicitudAceptada.id);
+                                            }
+                                        }}
+                                        title="Rechazar residencia aceptada"
+                                    >
+                                        <i className="fas fa-times"></i>
+                                        Rechazar
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
@@ -528,18 +733,18 @@ export default function Solicitudes() {
                         </div>
                     </div>
 
-                    {/* Botón para simular verificación de actualizaciones */}
+                    {/* Botón para actualizar manualmente */}
                     <div className={styles.botonActualizaciones}>
                         <button 
                             className={styles.btnActualizar}
-                            onClick={verificarNotificacionesAdmin}
+                            onClick={verificarActualizaciones}
                         >
                             <i className="fas fa-sync-alt"></i>
-                            Verificar actualizaciones del administrador
+                            Actualizar solicitudes
                         </button>
                         <p className={styles.notaActualizaciones}>
                             <i className="fas fa-info-circle"></i>
-                            Las actualizaciones se verifican automáticamente cada 30 segundos
+                            Las solicitudes se actualizan automáticamente cada 30 segundos
                         </p>
                     </div>
 
@@ -565,6 +770,12 @@ export default function Solicitudes() {
                                             <i className="fas fa-user-check"></i>
                                             {solicitudAceptada.estado} por Admin
                                         </span>
+                                        {solicitudAceptada.confirmacion === 'Aceptado' && (
+                                            <span className={styles.confirmacionBadge}>
+                                                <i className="fas fa-check-double"></i>
+                                                Confirmado por ti
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -637,13 +848,37 @@ export default function Solicitudes() {
                                     <div className={styles.notaAceptada}>
                                         <i className="fas fa-user-shield"></i>
                                         <div>
-                                            <h4>Aceptado por el Administrador</h4>
+                                            <h4>{solicitudAceptada.confirmacion === 'Aceptado' ? 'Residencia Confirmada' : 'Residencia Pendiente de Confirmación'}</h4>
                                             <p>
-                                                Tu residencia ha sido aprobada. Ya no puedes solicitar otras residencias.
-                                                Por favor, contacta a la empresa para coordinar tu inicio.
+                                                {solicitudAceptada.confirmacion === 'Aceptado' 
+                                                    ? 'Tu residencia ha sido confirmada. Ya no puedes solicitar otras residencias. Por favor, contacta a la empresa para coordinar tu inicio.'
+                                                    : 'Tu residencia ha sido aprobada por el administrador. Por favor, confirma tu aceptación para proceder.'}
                                             </p>
                                         </div>
                                     </div>
+
+                                    {solicitudAceptada.confirmacion !== 'Aceptado' && (
+                                        <div className={styles.empresaActions}>
+                                            <button 
+                                                className={styles.btnConfirmarAccion}
+                                                onClick={() => confirmarResidencia(solicitudAceptada.id)}
+                                            >
+                                                <i className="fas fa-check"></i>
+                                                Confirmar Residencia
+                                            </button>
+                                            <button 
+                                                className={styles.btnRechazarAccion}
+                                                onClick={() => {
+                                                    if (window.confirm('¿Estás seguro de rechazar esta residencia aceptada?')) {
+                                                        rechazarResidencia(solicitudAceptada.id);
+                                                    }
+                                                }}
+                                            >
+                                                <i className="fas fa-times"></i>
+                                                Rechazar Residencia
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
